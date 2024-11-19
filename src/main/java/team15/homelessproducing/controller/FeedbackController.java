@@ -3,8 +3,8 @@ package team15.homelessproducing.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import team15.homelessapp.model.Feedback;
-import team15.homelessapp.repos.FeedbackRepository;
+import team15.homelessproducing.model.Feedback;
+import team15.homelessproducing.repos.FeedbackRepository;
 
 import java.util.List;
 import java.util.Optional;

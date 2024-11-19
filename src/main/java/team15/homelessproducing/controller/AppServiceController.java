@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import team15.homelessapp.model.AppService;
-import team15.homelessapp.repos.AppServiceRepository;
+import team15.homelessproducing.model.AppService;
+import team15.homelessproducing.repos.AppServiceRepository;
 
 import java.time.LocalTime;
 import java.util.List;

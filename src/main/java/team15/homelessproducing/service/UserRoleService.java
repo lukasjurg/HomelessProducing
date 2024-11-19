@@ -2,10 +2,10 @@ package team15.homelessproducing.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import team15.homelessapp.exceptions.DatabaseException;
-import team15.homelessapp.exceptions.ResourceNotFoundException;
-import team15.homelessapp.model.UserRole;
-import team15.homelessapp.repos.UserRoleRepository;
+import team15.homelessproducing.exceptions.DatabaseException;
+import team15.homelessproducing.exceptions.ResourceNotFoundException;
+import team15.homelessproducing.model.UserRole;
+import team15.homelessproducing.repos.UserRoleRepository;
 
 import java.util.List;
 

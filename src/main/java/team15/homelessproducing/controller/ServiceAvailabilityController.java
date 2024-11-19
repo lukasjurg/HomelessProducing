@@ -3,8 +3,8 @@ package team15.homelessproducing.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import team15.homelessapp.model.ServiceAvailability;
-import team15.homelessapp.repos.ServiceAvailabilityRepository;
+import team15.homelessproducing.model.ServiceAvailability;
+import team15.homelessproducing.repos.ServiceAvailabilityRepository;
 
 import java.util.Date;
 import java.util.List;
