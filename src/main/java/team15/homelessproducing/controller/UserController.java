@@ -4,53 +4,53 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team15.homelessproducing.model.User;
-import team15.homelessproducing.repos.UserRepository;
+import team15.homelessproducing.service.UserService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @GetMapping
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Integer id) {
-        Optional<User> user = userRepository.findById(id);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userRepository.save(user);
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        try {
+            User createdUser = userService.createUser(user);
+            return ResponseEntity.status(201).body(createdUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody User updatedUser) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.setUsername(updatedUser.getUsername());
-                    user.setPassword(updatedUser.getPassword());
-                    user.setEmail(updatedUser.getEmail());
-                    user.setRole(updatedUser.getRole());  // Corrected to match current field name
-                    return ResponseEntity.ok(userRepository.save(user));
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        try {
+            User user = userService.updateUser(id, updatedUser);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
+        try {
+            userService.deleteUser(id);
             return ResponseEntity.noContent().build();
-        } else {
+        } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
     }

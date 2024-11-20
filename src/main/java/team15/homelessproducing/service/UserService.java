@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import team15.homelessproducing.exceptions.DatabaseException;
 import team15.homelessproducing.exceptions.ResourceNotFoundException;
 import team15.homelessproducing.model.User;
+import team15.homelessproducing.model.UserRole;
 import team15.homelessproducing.repos.UserRepository;
+import team15.homelessproducing.repos.UserRoleRepository;
 
 import java.util.List;
 
@@ -14,6 +16,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserRoleRepository userRoleRepository;
 
     public List<User> getAllUsers() {
         try {
@@ -29,9 +34,18 @@ public class UserService {
     }
 
     public User createUser(User user) {
+        // Fetch the "User" role
+        UserRole userRole = userRoleRepository.findByRoleName("User")
+                .orElseThrow(() -> new ResourceNotFoundException("Default role 'User' not found"));
+
+        // Assign the "User" role to the new user
+        user.setRole(userRole);
+
+        // Save the user
         try {
             return userRepository.save(user);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new DatabaseException("Failed to save user", e);
         }
     }

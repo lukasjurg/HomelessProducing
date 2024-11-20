@@ -10,10 +10,10 @@ public class UserRole {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int role_ID;
 
+    @Column(nullable = false, unique = true)
     private String role_name;
 
     // Getters and Setters
-
     public int getRole_ID() {
         return role_ID;
     }

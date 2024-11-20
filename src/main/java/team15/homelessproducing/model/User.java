@@ -10,30 +10,26 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int user_ID;
 
-    @ManyToOne
-    @JoinColumn(name = "role_ID", nullable = false)
-    private UserRole role;
-
+    @Column(nullable = false)
     private String username;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
     private String email;
 
-    // Getters and Setters
+    @ManyToOne(fetch = FetchType.LAZY) // Establish relationship with UserRole
+    @JoinColumn(name = "role_ID", nullable = false) // Foreign key column
+    private UserRole role;
 
+    // Getters and Setters
     public int getUser_ID() {
         return user_ID;
     }
 
     public void setUser_ID(int user_ID) {
         this.user_ID = user_ID;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
     }
 
     public String getUsername() {
@@ -58,5 +54,13 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 }

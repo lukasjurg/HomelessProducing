@@ -1,21 +1,31 @@
 package team15.homelessproducing;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import team15.homelessproducing.model.UserRole;
+import team15.homelessproducing.repos.UserRoleRepository;
 
-/**
- * Entry point for the HomelessRestApplication.
- * This class bootstraps and launches the Spring Boot application.
- */
+import java.util.Optional;
+
 @SpringBootApplication
-public class HomelessProducingApplication {
+public class HomelessProducingApplication implements CommandLineRunner {
 
-    /**
-     * The main method serves as the entry point for the Spring Boot application.
-     *
-     * @param args command-line arguments passed to the application
-     */
+    @Autowired
+    private UserRoleRepository userRoleRepository;
+
     public static void main(String[] args) {
         SpringApplication.run(HomelessProducingApplication.class, args);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        Optional<UserRole> userRole = userRoleRepository.findByRoleName("User");
+        if (userRole.isPresent()) {
+            System.out.println("User role found: " + userRole.get().getRole_name());
+        } else {
+            System.out.println("User role not found!");
+        }
     }
 }
