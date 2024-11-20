@@ -20,6 +20,7 @@ public class UserService {
     @Autowired
     private UserRoleRepository userRoleRepository;
 
+    // Fetch all users
     public List<User> getAllUsers() {
         try {
             return userRepository.findAll();
@@ -28,35 +29,35 @@ public class UserService {
         }
     }
 
+    // Fetch a user by ID
     public User getUserById(int id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID " + id + " not found"));
     }
 
+    // Create a new user with the default "User" role if not already set
     public User createUser(User user) {
-        // Fetch the "User" role
-        UserRole userRole = userRoleRepository.findByRoleName("User")
-                .orElseThrow(() -> new ResourceNotFoundException("Default role 'User' not found"));
-
-        // Assign the "User" role to the new user
-        user.setRole(userRole);
-
-        // Save the user
         try {
+            if (user.getRole() == null) {
+                // Assign the default "User" role if none is provided
+                UserRole userRole = userRoleRepository.findByRoleName("User")
+                        .orElseThrow(() -> new ResourceNotFoundException("Default role 'User' not found"));
+                user.setRole(userRole);
+            }
             return userRepository.save(user);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new DatabaseException("Failed to save user", e);
         }
     }
 
+    // Update an existing user
     public User updateUser(int id, User updatedUser) {
         return userRepository.findById(id)
                 .map(user -> {
-                    user.setUsername(updatedUser.getUsername());
-                    user.setPassword(updatedUser.getPassword());
-                    user.setEmail(updatedUser.getEmail());
-                    user.setRole(updatedUser.getRole());
+                    if (updatedUser.getUsername() != null) user.setUsername(updatedUser.getUsername());
+                    if (updatedUser.getPassword() != null) user.setPassword(updatedUser.getPassword());
+                    if (updatedUser.getEmail() != null) user.setEmail(updatedUser.getEmail());
+                    if (updatedUser.getRole() != null) user.setRole(updatedUser.getRole());
                     try {
                         return userRepository.save(user);
                     } catch (Exception e) {
@@ -66,6 +67,7 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID " + id + " not found"));
     }
 
+    // Delete a user by ID
     public void deleteUser(int id) {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("User with ID " + id + " not found");
@@ -77,10 +79,32 @@ public class UserService {
         }
     }
 
-
+    // Validate user credentials
     public User validateUser(String email, String password) {
         return userRepository.findByEmail(email)
                 .filter(user -> user.getPassword().equals(password))
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+    }
+
+    // Update user profile (partial updates)
+    public User updateUserProfile(int id, User updatedUser) {
+        return userRepository.findById(id)
+                .map(existingUser -> {
+                    if (updatedUser.getUsername() != null) {
+                        existingUser.setUsername(updatedUser.getUsername());
+                    }
+                    if (updatedUser.getEmail() != null) {
+                        existingUser.setEmail(updatedUser.getEmail());
+                    }
+                    if (updatedUser.getPassword() != null) {
+                        existingUser.setPassword(updatedUser.getPassword());
+                    }
+                    try {
+                        return userRepository.save(existingUser);
+                    } catch (Exception e) {
+                        throw new DatabaseException("Failed to update profile", e);
+                    }
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID " + id + " not found"));
     }
 }

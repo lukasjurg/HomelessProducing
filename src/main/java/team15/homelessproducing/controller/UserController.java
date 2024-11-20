@@ -78,6 +78,30 @@ public class UserController {
         }
     }
 
+    // Update user profile (contact information)
+    @PutMapping("/{id}/update-profile")
+    public ResponseEntity<?> updateUserProfile(@PathVariable Integer id, @RequestBody User updatedUser) {
+        try {
+            User existingUser = userService.getUserById(id);
+            if (updatedUser.getUsername() != null && !updatedUser.getUsername().isBlank()) {
+                existingUser.setUsername(updatedUser.getUsername());
+            }
+            if (updatedUser.getEmail() != null && !updatedUser.getEmail().isBlank()) {
+                existingUser.setEmail(updatedUser.getEmail());
+            }
+            if (updatedUser.getPassword() != null && !updatedUser.getPassword().isBlank()) {
+                existingUser.setPassword(updatedUser.getPassword());
+            }
+
+            User savedUser = userService.updateUser(id, existingUser);
+            return ResponseEntity.ok(savedUser);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the profile.");
+        }
+    }
+
     // Delete a user by ID
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
@@ -103,18 +127,20 @@ public class UserController {
 
             // Build response
             Map<String, Object> response = new HashMap<>();
+            response.put("id", user.getUser_id()); // Include user ID in response
             response.put("username", user.getUsername());
+            response.put("email", user.getEmail());
             response.put("role", roleName);
 
             if ("User".equalsIgnoreCase(roleName)) {
-                response.put("menu", List.of("View Profile", "Search Services", "Logout"));
-                return ResponseEntity.ok(response);
+                response.put("menu", List.of("View Profile", "Update Profile", "View Services", "Give Feedback", "Log Out"));
             } else if ("Admin".equalsIgnoreCase(roleName)) {
-                response.put("menu", List.of("View All Users", "Manage Services", "Logout"));
-                return ResponseEntity.ok(response);
+                response.put("menu", List.of("View All Users", "Manage Services", "Log Out"));
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unknown role detected.");
             }
+
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
         } catch (Exception e) {

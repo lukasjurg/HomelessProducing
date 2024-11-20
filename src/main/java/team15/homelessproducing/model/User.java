@@ -1,7 +1,6 @@
 package team15.homelessproducing.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -16,7 +15,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_ID;
+    private int user_id; // Renamed to match the database schema
 
     @NotBlank(message = "Username is required")
     @Column(nullable = false)
@@ -32,18 +31,18 @@ public class User {
     @Column(nullable = false, unique = true) // Ensure unique email
     private String email;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Establish relationship with UserRole
-    @JoinColumn(name = "role_ID", nullable = false) // Foreign key column
+    @ManyToOne(fetch = FetchType.LAZY) // Relationship with UserRole
+    @JoinColumn(name = "role_id", nullable = false) // Foreign key column
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // Prevent lazy loading serialization issues for role
     private UserRole role;
 
     // Getters and Setters
-    public int getUser_ID() {
-        return user_ID;
+    public int getUser_id() {
+        return user_id;
     }
 
-    public void setUser_ID(int user_ID) {
-        this.user_ID = user_ID;
+    public void setUser_id(int user_id) {
+        this.user_id = user_id;
     }
 
     public String getUsername() {
@@ -87,7 +86,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "user_ID=" + user_ID +
+                "user_id=" + user_id +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", role=" + (role != null ? role.getRole_name() : "null") +
