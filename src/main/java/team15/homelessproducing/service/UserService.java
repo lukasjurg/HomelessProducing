@@ -76,4 +76,11 @@ public class UserService {
             throw new DatabaseException("Failed to delete user", e);
         }
     }
+
+
+    public User validateUser(String email, String password) {
+        return userRepository.findByEmail(email)
+                .filter(user -> user.getPassword().equals(password))
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+    }
 }
