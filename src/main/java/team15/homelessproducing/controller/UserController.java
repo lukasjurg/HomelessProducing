@@ -4,9 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import team15.homelessproducing.exceptions.ResourceNotFoundException;
 import team15.homelessproducing.model.User;
+import team15.homelessproducing.model.UserRole;
 import team15.homelessproducing.service.UserService;
+import team15.homelessproducing.service.UserRoleService;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +21,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRoleService userRoleService;
+
     // Fetch all users
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
@@ -24,33 +31,37 @@ public class UserController {
             List<User> users = userService.getAllUsers();
             return ResponseEntity.ok(users);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-    // Fetch user by ID
+    // Fetch a user by ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Integer id) {
         try {
             User user = userService.getUserById(id);
             return ResponseEntity.ok(user);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching user");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching the user.");
         }
     }
 
-    // Create a new user
-    @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody User user) {
+    // Register a new user with role assignment
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody User user, @RequestParam("role") String roleName) {
         try {
+            UserRole role = userRoleService.getRoleByName(roleName);
+            user.setRole(role);
             User createdUser = userService.createUser(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid role specified: " + roleName);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating user");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while registering the user.");
         }
     }
 
@@ -60,10 +71,10 @@ public class UserController {
         try {
             User user = userService.updateUser(id, updatedUser);
             return ResponseEntity.ok(user);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating user");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the user.");
         }
     }
 
@@ -73,14 +84,14 @@ public class UserController {
         try {
             userService.deleteUser(id);
             return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting user");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the user.");
         }
     }
 
-    // Login user with email and password
+    // User login and role-based menu
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> loginDetails) {
         String email = loginDetails.get("email");
@@ -88,11 +99,26 @@ public class UserController {
 
         try {
             User user = userService.validateUser(email, password);
-            return ResponseEntity.ok(user);
+            String roleName = user.getRole().getRole_name();
+
+            // Build response
+            Map<String, Object> response = new HashMap<>();
+            response.put("username", user.getUsername());
+            response.put("role", roleName);
+
+            if ("User".equalsIgnoreCase(roleName)) {
+                response.put("menu", List.of("View Profile", "Search Services", "Logout"));
+                return ResponseEntity.ok(response);
+            } else if ("Admin".equalsIgnoreCase(roleName)) {
+                response.put("menu", List.of("View All Users", "Manage Services", "Logout"));
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unknown role detected.");
+            }
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during login");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during login.");
         }
     }
 }

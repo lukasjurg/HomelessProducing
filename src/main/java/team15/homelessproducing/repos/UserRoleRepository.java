@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface UserRoleRepository extends JpaRepository<UserRole, Integer> {
 
-    @Query("SELECT ur FROM UserRole ur WHERE ur.role_name = :roleName")
+    // Fetch a UserRole by its role name
+    @Query("SELECT ur FROM UserRole ur WHERE LOWER(ur.role_name) = LOWER(:roleName)")
     Optional<UserRole> findByRoleName(@Param("roleName") String roleName);
 }

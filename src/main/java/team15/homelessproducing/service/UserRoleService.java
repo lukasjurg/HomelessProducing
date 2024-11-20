@@ -15,6 +15,7 @@ public class UserRoleService {
     @Autowired
     private UserRoleRepository userRoleRepository;
 
+    // Retrieve all roles
     public List<UserRole> getAllRoles() {
         try {
             return userRoleRepository.findAll();
@@ -23,11 +24,19 @@ public class UserRoleService {
         }
     }
 
+    // Retrieve a role by ID
     public UserRole getRoleById(int id) {
         return userRoleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("UserRole with ID " + id + " not found"));
     }
 
+    // Retrieve a role by name
+    public UserRole getRoleByName(String roleName) {
+        return userRoleRepository.findByRoleName(roleName)
+                .orElseThrow(() -> new ResourceNotFoundException("UserRole with name '" + roleName + "' not found"));
+    }
+
+    // Create a new role
     public UserRole createRole(UserRole role) {
         try {
             return userRoleRepository.save(role);
@@ -36,6 +45,7 @@ public class UserRoleService {
         }
     }
 
+    // Update an existing role
     public UserRole updateRole(int id, UserRole updatedRole) {
         return userRoleRepository.findById(id).map(role -> {
             role.setRole_name(updatedRole.getRole_name());
@@ -47,6 +57,7 @@ public class UserRoleService {
         }).orElseThrow(() -> new ResourceNotFoundException("UserRole with ID " + id + " not found"));
     }
 
+    // Delete a role by ID
     public void deleteRole(int id) {
         if (!userRoleRepository.existsById(id)) {
             throw new ResourceNotFoundException("UserRole with ID " + id + " not found");
