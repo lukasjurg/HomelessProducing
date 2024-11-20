@@ -3,29 +3,31 @@ package team15.homelessproducing.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "City")
+@Table(name = "city")
 public class City {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int city_ID;
+    @Column(name = "city_id")
+    private int cityId;
 
-    private String city_name;
+    @Column(name = "city_name", nullable = false)
+    private String cityName;
 
     // Getters and Setters
-    public int getCity_ID() {
-        return city_ID;
+    public int getCityId() {
+        return cityId;
     }
 
-    public void setCity_ID(int city_ID) {
-        this.city_ID = city_ID;
+    public void setCityId(int cityId) {
+        this.cityId = cityId;
     }
 
-    public String getCity_name() {
-        return city_name;
+    public String getCityName() {
+        return cityName;
     }
 
-    public void setCity_name(String city_name) {
-        this.city_name = city_name;
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
     }
 }

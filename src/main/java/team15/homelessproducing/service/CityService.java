@@ -38,7 +38,7 @@ public class CityService {
 
     public City updateCity(int id, City updatedCity) {
         return cityRepository.findById(id).map(city -> {
-            city.setCity_name(updatedCity.getCity_name());
+            city.setCityName(updatedCity.getCityName());
             try {
                 return cityRepository.save(city);
             } catch (Exception e) {

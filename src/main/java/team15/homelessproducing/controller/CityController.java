@@ -17,27 +17,34 @@ public class CityController {
     private CityRepository cityRepository;
 
     @GetMapping
-    public List<City> getAllCities() {
-        return cityRepository.findAll();
+    public ResponseEntity<List<City>> getAllCities() {
+        List<City> cities = cityRepository.findAll();
+        return cities.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(cities);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<City> getCityById(@PathVariable Integer id) {
-        Optional<City> city = cityRepository.findById(id);
-        return city.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return cityRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public City createCity(@RequestBody City city) {
-        return cityRepository.save(city);
+    public ResponseEntity<City> createCity(@RequestBody City city) {
+        if (city == null || city.getCityName() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        City createdCity = cityRepository.save(city);
+        return ResponseEntity.ok(createdCity);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<City> updateCity(@PathVariable Integer id, @RequestBody City updatedCity) {
         return cityRepository.findById(id)
-                .map(city -> {
-                    city.setCity_name(updatedCity.getCity_name());
-                    return ResponseEntity.ok(cityRepository.save(city));
+                .map(existingCity -> {
+                    existingCity.setCityName(updatedCity.getCityName());
+                    City savedCity = cityRepository.save(existingCity);
+                    return ResponseEntity.ok(savedCity);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

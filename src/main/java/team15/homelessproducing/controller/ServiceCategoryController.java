@@ -17,28 +17,35 @@ public class ServiceCategoryController {
     private ServiceCategoryRepository serviceCategoryRepository;
 
     @GetMapping
-    public List<ServiceCategory> getAllCategories() {
-        return serviceCategoryRepository.findAll();
+    public ResponseEntity<List<ServiceCategory>> getAllCategories() {
+        List<ServiceCategory> categories = serviceCategoryRepository.findAll();
+        return categories.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(categories);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ServiceCategory> getCategoryById(@PathVariable Integer id) {
-        Optional<ServiceCategory> category = serviceCategoryRepository.findById(id);
-        return category.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return serviceCategoryRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ServiceCategory createCategory(@RequestBody ServiceCategory category) {
-        return serviceCategoryRepository.save(category);
+    public ResponseEntity<ServiceCategory> createCategory(@RequestBody ServiceCategory category) {
+        if (category == null || category.getCategoryName() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        ServiceCategory createdCategory = serviceCategoryRepository.save(category);
+        return ResponseEntity.ok(createdCategory);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ServiceCategory> updateCategory(@PathVariable Integer id, @RequestBody ServiceCategory updatedCategory) {
         return serviceCategoryRepository.findById(id)
-                .map(cat -> {
-                    cat.setCategory_name(updatedCategory.getCategory_name());
-                    cat.setCategory_description(updatedCategory.getCategory_description());
-                    return ResponseEntity.ok(serviceCategoryRepository.save(cat));
+                .map(existingCategory -> {
+                    existingCategory.setCategoryName(updatedCategory.getCategoryName());
+                    existingCategory.setCategoryDescription(updatedCategory.getCategoryDescription());
+                    ServiceCategory savedCategory = serviceCategoryRepository.save(existingCategory);
+                    return ResponseEntity.ok(savedCategory);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

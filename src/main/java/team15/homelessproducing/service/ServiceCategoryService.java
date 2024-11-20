@@ -38,8 +38,8 @@ public class ServiceCategoryService {
 
     public ServiceCategory updateServiceCategory(int id, ServiceCategory updatedCategory) {
         return serviceCategoryRepository.findById(id).map(category -> {
-            category.setCategory_name(updatedCategory.getCategory_name());
-            category.setCategory_description(updatedCategory.getCategory_description());
+            category.setCategoryName(updatedCategory.getCategoryName());
+            category.setCategoryDescription(updatedCategory.getCategoryDescription());
             try {
                 return serviceCategoryRepository.save(category);
             } catch (Exception e) {

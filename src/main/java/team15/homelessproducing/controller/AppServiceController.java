@@ -25,7 +25,6 @@ public class AppServiceController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
 
         List<AppService> services;
-
         if (categoryName != null && startTime != null && endTime != null) {
             services = appServiceRepository.findByCategoryAndAvailability(categoryName, startTime, endTime);
         } else if (categoryName != null) {
@@ -36,16 +35,14 @@ public class AppServiceController {
             services = appServiceRepository.findAll();
         }
 
-        if (services.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(services);
+        return services.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(services);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AppService> getAppServiceById(@PathVariable Integer id) {
-        Optional<AppService> service = appServiceRepository.findById(id);
-        return service.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return appServiceRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -59,20 +56,16 @@ public class AppServiceController {
 
     @PutMapping("/{id}")
     public ResponseEntity<AppService> updateAppService(@PathVariable Integer id, @RequestBody AppService updatedService) {
-        if (updatedService == null || updatedService.getName() == null || updatedService.getAddress() == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
         return appServiceRepository.findById(id)
-                .map(serv -> {
-                    serv.setName(updatedService.getName());
-                    serv.setAddress(updatedService.getAddress());
-                    serv.setContact_number(updatedService.getContact_number());
-                    serv.setStartTime(updatedService.getStartTime());
-                    serv.setEndTime(updatedService.getEndTime());
-                    serv.setCity(updatedService.getCity());
-                    serv.setCategory(updatedService.getCategory());
-                    AppService savedService = appServiceRepository.save(serv);
+                .map(existingService -> {
+                    existingService.setName(updatedService.getName());
+                    existingService.setAddress(updatedService.getAddress());
+                    existingService.setContactNumber(updatedService.getContactNumber());
+                    existingService.setStartTime(updatedService.getStartTime());
+                    existingService.setEndTime(updatedService.getEndTime());
+                    existingService.setCity(updatedService.getCity());
+                    existingService.setCategory(updatedService.getCategory());
+                    AppService savedService = appServiceRepository.save(existingService);
                     return ResponseEntity.ok(savedService);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());

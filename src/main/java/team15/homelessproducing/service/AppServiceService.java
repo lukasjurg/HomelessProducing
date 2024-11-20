@@ -41,7 +41,7 @@ public class AppServiceService {
         return appServiceRepository.findById(id).map(service -> {
             service.setName(updatedService.getName());
             service.setAddress(updatedService.getAddress());
-            service.setContact_number(updatedService.getContact_number());
+            service.setContactNumber(updatedService.getContactNumber());
             service.setStartTime(updatedService.getStartTime());
             service.setEndTime(updatedService.getEndTime());
             service.setCity(updatedService.getCity());

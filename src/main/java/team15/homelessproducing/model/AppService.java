@@ -3,42 +3,56 @@ package team15.homelessproducing.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "Service")
+@Table(name = "service")
 public class AppService {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int service_ID;
+    @Column(name = "service_id")
+    private int serviceId;
 
+    @NotBlank
+    @Column(name = "name", nullable = false)
     private String name;
-    private String address;
-    private String contact_number;
 
+    @NotBlank
+    @Column(name = "address", nullable = false)
+    private String address;
+
+    @NotBlank
+    @Column(name = "contact_number", nullable = false)
+    private String contactNumber;
+
+    @NotNull
     @JsonFormat(pattern = "HH:mm")
+    @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
 
+    @NotNull
     @JsonFormat(pattern = "HH:mm")
+    @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 
     @ManyToOne
-    @JoinColumn(name = "city_ID", nullable = false)
+    @JoinColumn(name = "city_id", nullable = false)
     private City city;
 
     @ManyToOne
-    @JoinColumn(name = "category_ID", nullable = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private ServiceCategory category;
 
     // Getters and Setters
-
-    public int getService_ID() {
-        return service_ID;
+    public int getServiceId() {
+        return serviceId;
     }
 
-    public void setService_ID(int service_ID) {
-        this.service_ID = service_ID;
+    public void setServiceId(int serviceId) {
+        this.serviceId = serviceId;
     }
 
     public String getName() {
@@ -57,12 +71,12 @@ public class AppService {
         this.address = address;
     }
 
-    public String getContact_number() {
-        return contact_number;
+    public String getContactNumber() {
+        return contactNumber;
     }
 
-    public void setContact_number(String contact_number) {
-        this.contact_number = contact_number;
+    public void setContactNumber(String contactNumber) {
+        this.contactNumber = contactNumber;
     }
 
     public LocalTime getStartTime() {

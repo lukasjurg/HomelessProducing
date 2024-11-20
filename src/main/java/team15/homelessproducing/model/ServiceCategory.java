@@ -3,41 +3,42 @@ package team15.homelessproducing.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "ServiceCategory")
+@Table(name = "service_category")
 public class ServiceCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int category_ID;
+    @Column(name = "category_id")
+    private int categoryId;
 
-    private String category_name;
-    private String category_description;
+    @Column(name = "category_name", nullable = false)
+    private String categoryName;
 
-    // Constructor
-    public ServiceCategory() {}
+    @Column(name = "category_description")
+    private String categoryDescription;
 
     // Getters and Setters
-    public int getCategory_ID() {
-        return category_ID;
+    public int getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory_ID(int category_ID) {
-        this.category_ID = category_ID;
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
     }
 
-    public String getCategory_name() {
-        return category_name;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public void setCategory_name(String category_name) {
-        this.category_name = category_name;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
-    public String getCategory_description() {
-        return category_description;
+    public String getCategoryDescription() {
+        return categoryDescription;
     }
 
-    public void setCategory_description(String category_description) {
-        this.category_description = category_description;
+    public void setCategoryDescription(String categoryDescription) {
+        this.categoryDescription = categoryDescription;
     }
 }
