@@ -1,6 +1,7 @@
 package team15.homelessproducing.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -9,6 +10,7 @@ import java.time.LocalTime;
 
 @Entity
 @Table(name = "service")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class AppService {
 
     @Id
@@ -38,12 +40,14 @@ public class AppService {
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "city_id", nullable = false)
+    @JsonIgnoreProperties("services") // Prevents infinite recursion if bidirectional mapping exists
     private City city;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonIgnoreProperties("services") // Prevents infinite recursion if bidirectional mapping exists
     private ServiceCategory category;
 
     // Getters and Setters
@@ -109,5 +113,19 @@ public class AppService {
 
     public void setCategory(ServiceCategory category) {
         this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        return "AppService{" +
+                "serviceId=" + serviceId +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", contactNumber='" + contactNumber + '\'' +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", city=" + (city != null ? city.getCityName() : "N/A") +
+                ", category=" + (category != null ? category.getCategoryName() : "N/A") +
+                '}';
     }
 }

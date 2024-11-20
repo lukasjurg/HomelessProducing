@@ -74,4 +74,36 @@ public class AppServiceService {
             throw new DatabaseException("Failed to retrieve available services within specified hours", e);
         }
     }
+
+    public List<AppService> getServicesByCategory(String categoryName) {
+        try {
+            return appServiceRepository.findByCategoryName(categoryName);
+        } catch (Exception e) {
+            throw new DatabaseException("Failed to retrieve services by category: " + categoryName, e);
+        }
+    }
+
+    public List<AppService> getServicesByCity(String cityName) {
+        try {
+            return appServiceRepository.findByCityName(cityName);
+        } catch (Exception e) {
+            throw new DatabaseException("Failed to retrieve services by city: " + cityName, e);
+        }
+    }
+
+    public List<AppService> getServicesByCategoryAndAvailability(String categoryName, LocalTime startTime, LocalTime endTime) {
+        try {
+            return appServiceRepository.findByCategoryAndAvailability(categoryName, startTime, endTime);
+        } catch (Exception e) {
+            throw new DatabaseException("Failed to retrieve services by category and availability", e);
+        }
+    }
+
+    public List<AppService> getServicesByCityAndAvailability(String cityName, LocalTime startTime, LocalTime endTime) {
+        try {
+            return appServiceRepository.findByCityAndAvailability(cityName, startTime, endTime);
+        } catch (Exception e) {
+            throw new DatabaseException("Failed to retrieve services by city and availability", e);
+        }
+    }
 }

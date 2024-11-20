@@ -1,9 +1,13 @@
 package team15.homelessproducing.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "service_category")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ServiceCategory {
 
     @Id
@@ -16,6 +20,10 @@ public class ServiceCategory {
 
     @Column(name = "category_description")
     private String categoryDescription;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("category") // Prevents infinite recursion when serializing
+    private List<AppService> services;
 
     // Getters and Setters
     public int getCategoryId() {
@@ -40,5 +48,22 @@ public class ServiceCategory {
 
     public void setCategoryDescription(String categoryDescription) {
         this.categoryDescription = categoryDescription;
+    }
+
+    public List<AppService> getServices() {
+        return services;
+    }
+
+    public void setServices(List<AppService> services) {
+        this.services = services;
+    }
+
+    @Override
+    public String toString() {
+        return "ServiceCategory{" +
+                "categoryId=" + categoryId +
+                ", categoryName='" + categoryName + '\'' +
+                ", categoryDescription='" + categoryDescription + '\'' +
+                '}';
     }
 }

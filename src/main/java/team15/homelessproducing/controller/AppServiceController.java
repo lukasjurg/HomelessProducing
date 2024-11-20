@@ -9,7 +9,6 @@ import team15.homelessproducing.repos.AppServiceRepository;
 
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/appservices")
@@ -21,14 +20,24 @@ public class AppServiceController {
     @GetMapping
     public ResponseEntity<List<AppService>> getAllAppServices(
             @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false) String cityName,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime) {
 
         List<AppService> services;
-        if (categoryName != null && startTime != null && endTime != null) {
+
+        if (categoryName != null && cityName != null && startTime != null && endTime != null) {
+            services = appServiceRepository.findByCategoryCityAndAvailability(categoryName, cityName, startTime, endTime);
+        } else if (categoryName != null && cityName != null) {
+            services = appServiceRepository.findByCategoryAndCity(categoryName, cityName);
+        } else if (categoryName != null && startTime != null && endTime != null) {
             services = appServiceRepository.findByCategoryAndAvailability(categoryName, startTime, endTime);
+        } else if (cityName != null && startTime != null && endTime != null) {
+            services = appServiceRepository.findByCityAndAvailability(cityName, startTime, endTime);
         } else if (categoryName != null) {
             services = appServiceRepository.findByCategoryName(categoryName);
+        } else if (cityName != null) {
+            services = appServiceRepository.findByCityName(cityName);
         } else if (startTime != null && endTime != null) {
             services = appServiceRepository.findAvailableServicesWithinHours(startTime, endTime);
         } else {
