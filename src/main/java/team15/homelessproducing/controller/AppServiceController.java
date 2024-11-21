@@ -4,8 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import team15.homelessproducing.exceptions.ResourceNotFoundException;
 import team15.homelessproducing.model.AppService;
+import team15.homelessproducing.model.City;
+import team15.homelessproducing.model.ServiceCategory;
 import team15.homelessproducing.repos.AppServiceRepository;
+import team15.homelessproducing.repos.CityRepository;
+import team15.homelessproducing.repos.ServiceCategoryRepository;
+import team15.homelessproducing.repos.VisitLogRepository;
+import team15.homelessproducing.repos.FeedbackRepository;
+
 
 import java.time.LocalTime;
 import java.util.List;
@@ -16,6 +24,18 @@ public class AppServiceController {
 
     @Autowired
     private AppServiceRepository appServiceRepository;
+
+    @Autowired
+    private CityRepository cityRepository;
+
+    @Autowired
+    private FeedbackRepository feedbackRepository;
+
+    @Autowired
+    private VisitLogRepository visitLogRepository;
+
+    @Autowired
+    private ServiceCategoryRepository serviceCategoryRepository;
 
     @GetMapping
     public ResponseEntity<List<AppService>> getAllAppServices(
@@ -67,26 +87,49 @@ public class AppServiceController {
     public ResponseEntity<AppService> updateAppService(@PathVariable Integer id, @RequestBody AppService updatedService) {
         return appServiceRepository.findById(id)
                 .map(existingService -> {
-                    existingService.setName(updatedService.getName());
-                    existingService.setAddress(updatedService.getAddress());
-                    existingService.setContactNumber(updatedService.getContactNumber());
-                    existingService.setStartTime(updatedService.getStartTime());
-                    existingService.setEndTime(updatedService.getEndTime());
-                    existingService.setCity(updatedService.getCity());
-                    existingService.setCategory(updatedService.getCategory());
+                    // Update primitive fields
+                    if (updatedService.getName() != null) existingService.setName(updatedService.getName());
+                    if (updatedService.getAddress() != null) existingService.setAddress(updatedService.getAddress());
+                    if (updatedService.getContactNumber() != null) existingService.setContactNumber(updatedService.getContactNumber());
+                    if (updatedService.getStartTime() != null) existingService.setStartTime(updatedService.getStartTime());
+                    if (updatedService.getEndTime() != null) existingService.setEndTime(updatedService.getEndTime());
+
+                    // Update city if provided
+                    if (updatedService.getCity() != null && updatedService.getCity().getCityId() != 0) {
+                        int cityId = updatedService.getCity().getCityId();
+                        City city = cityRepository.findById(cityId)
+                                .orElseThrow(() -> new ResourceNotFoundException("City not found with ID: " + cityId));
+                        existingService.setCity(city);
+                    }
+
+                    // Update category if provided
+                    if (updatedService.getCategory() != null && updatedService.getCategory().getCategoryId() != 0) {
+                        int categoryId = updatedService.getCategory().getCategoryId();
+                        ServiceCategory category = serviceCategoryRepository.findById(categoryId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + categoryId));
+                        existingService.setCategory(category);
+                    }
+
+                    // Save the updated service
                     AppService savedService = appServiceRepository.save(existingService);
                     return ResponseEntity.ok(savedService);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAppService(@PathVariable Integer id) {
         if (appServiceRepository.existsById(id)) {
+            visitLogRepository.deleteByService_ServiceId(id); // Now resolved
+            feedbackRepository.deleteByService_ServiceId(id); // Now resolved
+
             appServiceRepository.deleteById(id);
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
+
 }

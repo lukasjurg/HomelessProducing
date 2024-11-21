@@ -3,6 +3,7 @@ package team15.homelessproducing.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import team15.homelessproducing.exceptions.ResourceNotFoundException;
 import team15.homelessproducing.model.City;
 import team15.homelessproducing.repos.CityRepository;
 
@@ -26,13 +27,13 @@ public class CityController {
     public ResponseEntity<City> getCityById(@PathVariable Integer id) {
         return cityRepository.findById(id)
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ResourceNotFoundException("City with ID " + id + " not found"));
     }
 
     @PostMapping
     public ResponseEntity<City> createCity(@RequestBody City city) {
-        if (city == null || city.getCityName() == null) {
-            return ResponseEntity.badRequest().build();
+        if (city == null || city.getCityName() == null || city.getCityName().isBlank()) {
+            throw new IllegalArgumentException("City name cannot be null or blank.");
         }
         City createdCity = cityRepository.save(city);
         return ResponseEntity.ok(createdCity);
@@ -46,16 +47,15 @@ public class CityController {
                     City savedCity = cityRepository.save(existingCity);
                     return ResponseEntity.ok(savedCity);
                 })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ResourceNotFoundException("City with ID " + id + " not found"));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCity(@PathVariable Integer id) {
-        if (cityRepository.existsById(id)) {
-            cityRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
+        if (!cityRepository.existsById(id)) {
+            throw new ResourceNotFoundException("City with ID " + id + " not found");
         }
+        cityRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

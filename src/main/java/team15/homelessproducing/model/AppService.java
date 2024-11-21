@@ -7,6 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalTime;
+import java.util.List; // Import for List
 
 @Entity
 @Table(name = "service")
@@ -49,6 +50,13 @@ public class AppService {
     @JoinColumn(name = "category_id", nullable = false)
     @JsonIgnoreProperties("services") // Prevents infinite recursion if bidirectional mapping exists
     private ServiceCategory category;
+
+    // New relationships
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Feedback> feedbacks; // Import for Feedback
+
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VisitLog> visitLogs; // Import for VisitLog
 
     // Getters and Setters
     public int getServiceId() {
@@ -113,6 +121,22 @@ public class AppService {
 
     public void setCategory(ServiceCategory category) {
         this.category = category;
+    }
+
+    public List<Feedback> getFeedbacks() {
+        return feedbacks;
+    }
+
+    public void setFeedbacks(List<Feedback> feedbacks) {
+        this.feedbacks = feedbacks;
+    }
+
+    public List<VisitLog> getVisitLogs() {
+        return visitLogs;
+    }
+
+    public void setVisitLogs(List<VisitLog> visitLogs) {
+        this.visitLogs = visitLogs;
     }
 
     @Override

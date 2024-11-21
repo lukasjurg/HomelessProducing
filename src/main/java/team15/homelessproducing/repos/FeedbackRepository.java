@@ -6,4 +6,5 @@ import team15.homelessproducing.model.Feedback;
 
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
+    void deleteByService_ServiceId(Integer serviceId); // Matches `Feedback.service`
 }

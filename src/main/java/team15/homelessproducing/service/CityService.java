@@ -16,11 +16,7 @@ public class CityService {
     private CityRepository cityRepository;
 
     public List<City> getAllCities() {
-        try {
-            return cityRepository.findAll();
-        } catch (Exception e) {
-            throw new DatabaseException("Failed to retrieve cities", e);
-        }
+        return cityRepository.findAll();
     }
 
     public City getCityById(int id) {
@@ -29,32 +25,25 @@ public class CityService {
     }
 
     public City createCity(City city) {
-        try {
-            return cityRepository.save(city);
-        } catch (Exception e) {
-            throw new DatabaseException("Failed to create city", e);
+        if (city == null || city.getCityName() == null || city.getCityName().isBlank()) {
+            throw new IllegalArgumentException("City name cannot be null or blank.");
         }
+        return cityRepository.save(city);
     }
 
     public City updateCity(int id, City updatedCity) {
-        return cityRepository.findById(id).map(city -> {
-            city.setCityName(updatedCity.getCityName());
-            try {
-                return cityRepository.save(city);
-            } catch (Exception e) {
-                throw new DatabaseException("Failed to update city", e);
-            }
-        }).orElseThrow(() -> new ResourceNotFoundException("City with ID " + id + " not found"));
+        return cityRepository.findById(id)
+                .map(city -> {
+                    city.setCityName(updatedCity.getCityName());
+                    return cityRepository.save(city);
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("City with ID " + id + " not found"));
     }
 
     public void deleteCity(int id) {
         if (!cityRepository.existsById(id)) {
             throw new ResourceNotFoundException("City with ID " + id + " not found");
         }
-        try {
-            cityRepository.deleteById(id);
-        } catch (Exception e) {
-            throw new DatabaseException("Failed to delete city", e);
-        }
+        cityRepository.deleteById(id);
     }
 }

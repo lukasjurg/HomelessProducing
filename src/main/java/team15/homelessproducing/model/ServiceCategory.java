@@ -3,6 +3,7 @@ package team15.homelessproducing.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Entity
@@ -15,6 +16,7 @@ public class ServiceCategory {
     @Column(name = "category_id")
     private int categoryId;
 
+    @NotBlank(message = "Category name cannot be blank")
     @Column(name = "category_name", nullable = false)
     private String categoryName;
 
@@ -22,7 +24,7 @@ public class ServiceCategory {
     private String categoryDescription;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("category") // Prevents infinite recursion when serializing
+    @JsonIgnoreProperties("category")
     private List<AppService> services;
 
     // Getters and Setters

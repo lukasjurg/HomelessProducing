@@ -16,7 +16,7 @@ public class Feedback {
 
     @ManyToOne
     @JoinColumn(name = "service_ID", nullable = false)
-    private AppService service; // Updated to AppService
+    private AppService service;
 
     private int rating;
 
@@ -38,11 +38,11 @@ public class Feedback {
         this.user = user;
     }
 
-    public AppService getService() { // Updated to AppService
+    public AppService getService() {
         return service;
     }
 
-    public void setService(AppService service) { // Updated to AppService
+    public void setService(AppService service) {
         this.service = service;
     }
 
