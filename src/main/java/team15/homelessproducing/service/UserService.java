@@ -52,4 +52,15 @@ public class UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
+    public boolean validateLogin(String email, String password) {
+        // Fetch user by email
+        User user = userRepository.findByEmail(email);
+
+        // Validate the user and password
+        if (user != null && user.getPassword().equals(password)) {
+            return true;
+        }
+        return false;
+    }
 }
