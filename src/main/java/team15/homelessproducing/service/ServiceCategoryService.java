@@ -2,10 +2,8 @@ package team15.homelessproducing.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import team15.homelessproducing.exceptions.DatabaseException;
-import team15.homelessproducing.exceptions.ResourceNotFoundException;
 import team15.homelessproducing.model.ServiceCategory;
-import team15.homelessproducing.repos.ServiceCategoryRepository;
+import team15.homelessproducing.repository.ServiceCategoryRepository;
 
 import java.util.List;
 
@@ -16,46 +14,25 @@ public class ServiceCategoryService {
     private ServiceCategoryRepository serviceCategoryRepository;
 
     public List<ServiceCategory> getAllServiceCategories() {
-        try {
-            return serviceCategoryRepository.findAll();
-        } catch (Exception e) {
-            throw new DatabaseException("Failed to retrieve service categories", e);
-        }
+        return serviceCategoryRepository.findAll();
     }
 
-    public ServiceCategory getServiceCategoryById(int id) {
-        return serviceCategoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("ServiceCategory with ID " + id + " not found"));
+    public ServiceCategory getServiceCategoryById(Long id) {
+        return serviceCategoryRepository.findById(id).orElseThrow(() -> new RuntimeException("ServiceCategory not found"));
     }
 
-    public ServiceCategory createServiceCategory(ServiceCategory category) {
-        try {
-            return serviceCategoryRepository.save(category);
-        } catch (Exception e) {
-            throw new DatabaseException("Failed to create service category", e);
-        }
+    public ServiceCategory createServiceCategory(ServiceCategory serviceCategory) {
+        return serviceCategoryRepository.save(serviceCategory);
     }
 
-    public ServiceCategory updateServiceCategory(int id, ServiceCategory updatedCategory) {
-        return serviceCategoryRepository.findById(id).map(category -> {
-            category.setCategoryName(updatedCategory.getCategoryName());
-            category.setCategoryDescription(updatedCategory.getCategoryDescription());
-            try {
-                return serviceCategoryRepository.save(category);
-            } catch (Exception e) {
-                throw new DatabaseException("Failed to update service category", e);
-            }
-        }).orElseThrow(() -> new ResourceNotFoundException("ServiceCategory with ID " + id + " not found"));
+    public ServiceCategory updateServiceCategory(Long id, ServiceCategory serviceCategoryDetails) {
+        ServiceCategory serviceCategory = serviceCategoryRepository.findById(id).orElseThrow(() -> new RuntimeException("ServiceCategory not found"));
+        serviceCategory.setCategoryName(serviceCategoryDetails.getCategoryName());
+        serviceCategory.setCategoryDescription(serviceCategoryDetails.getCategoryDescription());
+        return serviceCategoryRepository.save(serviceCategory);
     }
 
-    public void deleteServiceCategory(int id) {
-        if (!serviceCategoryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("ServiceCategory with ID " + id + " not found");
-        }
-        try {
-            serviceCategoryRepository.deleteById(id);
-        } catch (Exception e) {
-            throw new DatabaseException("Failed to delete service category", e);
-        }
+    public void deleteServiceCategory(Long id) {
+        serviceCategoryRepository.deleteById(id);
     }
 }

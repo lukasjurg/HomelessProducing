@@ -3,12 +3,13 @@ package team15.homelessproducing.model;
 import javax.persistence.*;
 
 @Entity
-public class Feedback {
+public class AppointmentBooking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long feedbackId;
+    private Long bookingId;
 
-    private int rating;
+    private String bookingDate;
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -19,20 +20,28 @@ public class Feedback {
     private HomelessService service;
 
     // Getters and Setters
-    public Long getFeedbackId() {
-        return feedbackId;
+    public Long getBookingId() {
+        return bookingId;
     }
 
-    public void setFeedbackId(Long feedbackId) {
-        this.feedbackId = feedbackId;
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
     }
 
-    public int getRating() {
-        return rating;
+    public String getBookingDate() {
+        return bookingDate;
     }
 
-    public void setRating(int rating) {
-        this.rating = rating;
+    public void setBookingDate(String bookingDate) {
+        this.bookingDate = bookingDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public User getUser() {

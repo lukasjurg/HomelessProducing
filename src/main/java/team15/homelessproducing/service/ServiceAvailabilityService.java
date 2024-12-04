@@ -2,10 +2,8 @@ package team15.homelessproducing.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import team15.homelessproducing.exceptions.DatabaseException;
-import team15.homelessproducing.exceptions.ResourceNotFoundException;
 import team15.homelessproducing.model.ServiceAvailability;
-import team15.homelessproducing.repos.ServiceAvailabilityRepository;
+import team15.homelessproducing.repository.ServiceAvailabilityRepository;
 
 import java.util.List;
 
@@ -15,48 +13,27 @@ public class ServiceAvailabilityService {
     @Autowired
     private ServiceAvailabilityRepository serviceAvailabilityRepository;
 
-    public List<ServiceAvailability> getAllServiceAvailabilities() {
-        try {
-            return serviceAvailabilityRepository.findAll();
-        } catch (Exception e) {
-            throw new DatabaseException("Failed to retrieve service availabilities", e);
-        }
+    public List<ServiceAvailability> getAllServiceAvailability() {
+        return serviceAvailabilityRepository.findAll();
     }
 
-    public ServiceAvailability getServiceAvailabilityById(int id) {
-        return serviceAvailabilityRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("ServiceAvailability with ID " + id + " not found"));
+    public ServiceAvailability getServiceAvailabilityById(Long id) {
+        return serviceAvailabilityRepository.findById(id).orElseThrow(() -> new RuntimeException("ServiceAvailability not found"));
     }
 
-    public ServiceAvailability createServiceAvailability(ServiceAvailability availability) {
-        try {
-            return serviceAvailabilityRepository.save(availability);
-        } catch (Exception e) {
-            throw new DatabaseException("Failed to create service availability", e);
-        }
+    public ServiceAvailability createServiceAvailability(ServiceAvailability serviceAvailability) {
+        return serviceAvailabilityRepository.save(serviceAvailability);
     }
 
-    public ServiceAvailability updateServiceAvailability(int id, ServiceAvailability updatedAvailability) {
-        return serviceAvailabilityRepository.findById(id).map(availability -> {
-            availability.setService(updatedAvailability.getService());
-            availability.setAvailable_slots(updatedAvailability.getAvailable_slots());
-            availability.setLast_updated(updatedAvailability.getLast_updated());
-            try {
-                return serviceAvailabilityRepository.save(availability);
-            } catch (Exception e) {
-                throw new DatabaseException("Failed to update service availability", e);
-            }
-        }).orElseThrow(() -> new ResourceNotFoundException("ServiceAvailability with ID " + id + " not found"));
+    public ServiceAvailability updateServiceAvailability(Long id, ServiceAvailability serviceAvailabilityDetails) {
+        ServiceAvailability serviceAvailability = serviceAvailabilityRepository.findById(id).orElseThrow(() -> new RuntimeException("ServiceAvailability not found"));
+        serviceAvailability.setAvailableSlots(serviceAvailabilityDetails.getAvailableSlots());
+        serviceAvailability.setLastUpdated(serviceAvailabilityDetails.getLastUpdated());
+        serviceAvailability.setService(serviceAvailabilityDetails.getService());
+        return serviceAvailabilityRepository.save(serviceAvailability);
     }
 
-    public void deleteServiceAvailability(int id) {
-        if (!serviceAvailabilityRepository.existsById(id)) {
-            throw new ResourceNotFoundException("ServiceAvailability with ID " + id + " not found");
-        }
-        try {
-            serviceAvailabilityRepository.deleteById(id);
-        } catch (Exception e) {
-            throw new DatabaseException("Failed to delete service availability", e);
-        }
+    public void deleteServiceAvailability(Long id) {
+        serviceAvailabilityRepository.deleteById(id);
     }
 }

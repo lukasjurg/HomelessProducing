@@ -2,10 +2,8 @@ package team15.homelessproducing.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import team15.homelessproducing.exceptions.DatabaseException;
-import team15.homelessproducing.exceptions.ResourceNotFoundException;
 import team15.homelessproducing.model.UserRole;
-import team15.homelessproducing.repos.UserRoleRepository;
+import team15.homelessproducing.repository.UserRoleRepository;
 
 import java.util.List;
 
@@ -15,57 +13,25 @@ public class UserRoleService {
     @Autowired
     private UserRoleRepository userRoleRepository;
 
-    // Retrieve all roles
-    public List<UserRole> getAllRoles() {
-        try {
-            return userRoleRepository.findAll();
-        } catch (Exception e) {
-            throw new DatabaseException("Failed to retrieve user roles", e);
-        }
+    public List<UserRole> getAllUserRoles() {
+        return userRoleRepository.findAll();
     }
 
-    // Retrieve a role by ID
-    public UserRole getRoleById(int id) {
-        return userRoleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("UserRole with ID " + id + " not found"));
+    public UserRole getUserRoleById(Long id) {
+        return userRoleRepository.findById(id).orElseThrow(() -> new RuntimeException("UserRole not found"));
     }
 
-    // Retrieve a role by name
-    public UserRole getRoleByName(String roleName) {
-        return userRoleRepository.findByRoleName(roleName)
-                .orElseThrow(() -> new ResourceNotFoundException("UserRole with name '" + roleName + "' not found"));
+    public UserRole createUserRole(UserRole userRole) {
+        return userRoleRepository.save(userRole);
     }
 
-    // Create a new role
-    public UserRole createRole(UserRole role) {
-        try {
-            return userRoleRepository.save(role);
-        } catch (Exception e) {
-            throw new DatabaseException("Failed to create user role", e);
-        }
+    public UserRole updateUserRole(Long id, UserRole userRoleDetails) {
+        UserRole userRole = userRoleRepository.findById(id).orElseThrow(() -> new RuntimeException("UserRole not found"));
+        userRole.setRoleName(userRoleDetails.getRoleName());
+        return userRoleRepository.save(userRole);
     }
 
-    // Update an existing role
-    public UserRole updateRole(int id, UserRole updatedRole) {
-        return userRoleRepository.findById(id).map(role -> {
-            role.setRole_name(updatedRole.getRole_name());
-            try {
-                return userRoleRepository.save(role);
-            } catch (Exception e) {
-                throw new DatabaseException("Failed to update user role", e);
-            }
-        }).orElseThrow(() -> new ResourceNotFoundException("UserRole with ID " + id + " not found"));
-    }
-
-    // Delete a role by ID
-    public void deleteRole(int id) {
-        if (!userRoleRepository.existsById(id)) {
-            throw new ResourceNotFoundException("UserRole with ID " + id + " not found");
-        }
-        try {
-            userRoleRepository.deleteById(id);
-        } catch (Exception e) {
-            throw new DatabaseException("Failed to delete user role", e);
-        }
+    public void deleteUserRole(Long id) {
+        userRoleRepository.deleteById(id);
     }
 }

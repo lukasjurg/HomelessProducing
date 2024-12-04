@@ -1,30 +1,27 @@
 package team15.homelessproducing.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team15.homelessproducing.model.Feedback;
-import team15.homelessproducing.repos.FeedbackRepository;
+import team15.homelessproducing.repository.FeedbackRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/feedback")
+@RequestMapping("/api/feedbacks")
 public class FeedbackController {
 
     @Autowired
     private FeedbackRepository feedbackRepository;
 
     @GetMapping
-    public List<Feedback> getAllFeedback() {
+    public List<Feedback> getAllFeedbacks() {
         return feedbackRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Feedback> getFeedbackById(@PathVariable Integer id) {
-        Optional<Feedback> feedback = feedbackRepository.findById(id);
-        return feedback.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public Feedback getFeedbackById(@PathVariable Long id) {
+        return feedbackRepository.findById(id).orElseThrow(() -> new RuntimeException("Feedback not found"));
     }
 
     @PostMapping
@@ -33,24 +30,16 @@ public class FeedbackController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Feedback> updateFeedback(@PathVariable Integer id, @RequestBody Feedback updatedFeedback) {
-        return feedbackRepository.findById(id)
-                .map(feedback -> {
-                    feedback.setUser(updatedFeedback.getUser());
-                    feedback.setService(updatedFeedback.getService());
-                    feedback.setRating(updatedFeedback.getRating());
-                    return ResponseEntity.ok(feedbackRepository.save(feedback));
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public Feedback updateFeedback(@PathVariable Long id, @RequestBody Feedback feedbackDetails) {
+        Feedback feedback = feedbackRepository.findById(id).orElseThrow(() -> new RuntimeException("Feedback not found"));
+        feedback.setRating(feedbackDetails.getRating());
+        feedback.setUser(feedbackDetails.getUser());
+        feedback.setService(feedbackDetails.getService());
+        return feedbackRepository.save(feedback);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFeedback(@PathVariable Integer id) {
-        if (feedbackRepository.existsById(id)) {
-            feedbackRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public void deleteFeedback(@PathVariable Long id) {
+        feedbackRepository.deleteById(id);
     }
 }

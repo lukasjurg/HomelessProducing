@@ -2,10 +2,8 @@ package team15.homelessproducing.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import team15.homelessproducing.exceptions.DatabaseException;
-import team15.homelessproducing.exceptions.ResourceNotFoundException;
 import team15.homelessproducing.model.City;
-import team15.homelessproducing.repos.CityRepository;
+import team15.homelessproducing.repository.CityRepository;
 
 import java.util.List;
 
@@ -19,31 +17,21 @@ public class CityService {
         return cityRepository.findAll();
     }
 
-    public City getCityById(int id) {
-        return cityRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("City with ID " + id + " not found"));
+    public City getCityById(Long id) {
+        return cityRepository.findById(id).orElseThrow(() -> new RuntimeException("City not found"));
     }
 
     public City createCity(City city) {
-        if (city == null || city.getCityName() == null || city.getCityName().isBlank()) {
-            throw new IllegalArgumentException("City name cannot be null or blank.");
-        }
         return cityRepository.save(city);
     }
 
-    public City updateCity(int id, City updatedCity) {
-        return cityRepository.findById(id)
-                .map(city -> {
-                    city.setCityName(updatedCity.getCityName());
-                    return cityRepository.save(city);
-                })
-                .orElseThrow(() -> new ResourceNotFoundException("City with ID " + id + " not found"));
+    public City updateCity(Long id, City cityDetails) {
+        City city = cityRepository.findById(id).orElseThrow(() -> new RuntimeException("City not found"));
+        city.setCityName(cityDetails.getCityName());
+        return cityRepository.save(city);
     }
 
-    public void deleteCity(int id) {
-        if (!cityRepository.existsById(id)) {
-            throw new ResourceNotFoundException("City with ID " + id + " not found");
-        }
+    public void deleteCity(Long id) {
         cityRepository.deleteById(id);
     }
 }

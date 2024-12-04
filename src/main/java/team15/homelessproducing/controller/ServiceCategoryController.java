@@ -1,70 +1,44 @@
 package team15.homelessproducing.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team15.homelessproducing.model.ServiceCategory;
-import team15.homelessproducing.service.ServiceCategoryService;
+import team15.homelessproducing.repository.ServiceCategoryRepository;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/servicecategories")
+@RequestMapping("/api/service-categories")
 public class ServiceCategoryController {
 
     @Autowired
-    private ServiceCategoryService serviceCategoryService;
+    private ServiceCategoryRepository serviceCategoryRepository;
 
     @GetMapping
-    public ResponseEntity<List<ServiceCategory>> getAllCategories() {
-        List<ServiceCategory> categories = serviceCategoryService.getAllServiceCategories();
-        return categories.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(categories);
+    public List<ServiceCategory> getAllServiceCategories() {
+        return serviceCategoryRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ServiceCategory> getCategoryById(@PathVariable Integer id) {
-        try {
-            ServiceCategory category = serviceCategoryService.getServiceCategoryById(id);
-            return ResponseEntity.ok(category);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    public ServiceCategory getServiceCategoryById(@PathVariable Long id) {
+        return serviceCategoryRepository.findById(id).orElseThrow(() -> new RuntimeException("ServiceCategory not found"));
     }
 
     @PostMapping
-    public ResponseEntity<ServiceCategory> createCategory(@RequestBody ServiceCategory category) {
-        if (category == null || category.getCategoryName() == null || category.getCategoryName().trim().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        try {
-            ServiceCategory createdCategory = serviceCategoryService.createServiceCategory(category);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+    public ServiceCategory createServiceCategory(@RequestBody ServiceCategory serviceCategory) {
+        return serviceCategoryRepository.save(serviceCategory);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ServiceCategory> updateCategory(@PathVariable Integer id, @RequestBody ServiceCategory updatedCategory) {
-        if (updatedCategory == null || updatedCategory.getCategoryName() == null || updatedCategory.getCategoryName().trim().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        try {
-            ServiceCategory savedCategory = serviceCategoryService.updateServiceCategory(id, updatedCategory);
-            return ResponseEntity.ok(savedCategory);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    public ServiceCategory updateServiceCategory(@PathVariable Long id, @RequestBody ServiceCategory serviceCategoryDetails) {
+        ServiceCategory serviceCategory = serviceCategoryRepository.findById(id).orElseThrow(() -> new RuntimeException("ServiceCategory not found"));
+        serviceCategory.setCategoryName(serviceCategoryDetails.getCategoryName());
+        serviceCategory.setCategoryDescription(serviceCategoryDetails.getCategoryDescription());
+        return serviceCategoryRepository.save(serviceCategory);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Integer id) {
-        try {
-            serviceCategoryService.deleteServiceCategory(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    public void deleteServiceCategory(@PathVariable Long id) {
+        serviceCategoryRepository.deleteById(id);
     }
 }

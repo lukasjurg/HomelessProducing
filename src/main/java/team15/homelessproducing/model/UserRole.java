@@ -3,30 +3,27 @@ package team15.homelessproducing.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "UserRole")
 public class UserRole {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int role_ID;
+    private Long roleId;
 
-    @Column(nullable = false, unique = true)
-    private String role_name;
+    private String roleName;
 
     // Getters and Setters
-    public int getRole_ID() {
-        return role_ID;
+    public Long getRoleId() {
+        return roleId;
     }
 
-    public void setRole_ID(int role_ID) {
-        this.role_ID = role_ID;
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 
-    public String getRole_name() {
-        return role_name;
+    public String getRoleName() {
+        return roleName;
     }
 
-    public void setRole_name(String role_name) {
-        this.role_name = role_name;
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 }

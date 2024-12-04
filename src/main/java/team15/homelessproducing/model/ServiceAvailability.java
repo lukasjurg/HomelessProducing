@@ -1,56 +1,50 @@
 package team15.homelessproducing.model;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
-@Table(name = "ServiceAvailability")
 public class ServiceAvailability {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int availability_ID;
+    private Long availabilityId;
 
-    @ManyToOne
-    @JoinColumn(name = "service_ID", nullable = false)
-    private AppService service; // Updated to AppService
+    private int availableSlots;
+    private String lastUpdated;
 
-    private int available_slots;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date last_updated;
+    @OneToOne
+    @JoinColumn(name = "service_id")
+    private HomelessService service;
 
     // Getters and Setters
-
-    public int getAvailability_ID() {
-        return availability_ID;
+    public Long getAvailabilityId() {
+        return availabilityId;
     }
 
-    public void setAvailability_ID(int availability_ID) {
-        this.availability_ID = availability_ID;
+    public void setAvailabilityId(Long availabilityId) {
+        this.availabilityId = availabilityId;
     }
 
-    public AppService getService() { // Updated to AppService
+    public int getAvailableSlots() {
+        return availableSlots;
+    }
+
+    public void setAvailableSlots(int availableSlots) {
+        this.availableSlots = availableSlots;
+    }
+
+    public String getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(String lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+
+    public HomelessService getService() {
         return service;
     }
 
-    public void setService(AppService service) { // Updated to AppService
+    public void setService(HomelessService service) {
         this.service = service;
-    }
-
-    public int getAvailable_slots() {
-        return available_slots;
-    }
-
-    public void setAvailable_slots(int available_slots) {
-        this.available_slots = available_slots;
-    }
-
-    public Date getLast_updated() {
-        return last_updated;
-    }
-
-    public void setLast_updated(Date last_updated) {
-        this.last_updated = last_updated;
     }
 }
