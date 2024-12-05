@@ -2,6 +2,7 @@ package team15.homelessproducing.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import team15.homelessproducing.model.Response;
 import team15.homelessproducing.model.User;
 import team15.homelessproducing.model.UserRole;
 import team15.homelessproducing.repository.UserRepository;
@@ -72,14 +73,15 @@ public class UserController {
 
     // Login a user
     @PostMapping("/login")
-    public String loginUser(@RequestBody User user) {
+    public Response loginUser(@RequestBody User user) {
         Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
         if (foundUser.isPresent() && foundUser.get().getPassword().equals(user.getPassword())) {
-            return "Login successful!";
+            return new Response("Login successful!", foundUser.get().getRole().getRoleName());
         } else {
-            return "Invalid username or password!";
+            return new Response("Invalid username or password!", null);
         }
     }
+
 
     // Update user information (self-update)
     @PutMapping("/self-update/{id}")

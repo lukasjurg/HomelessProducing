@@ -1,6 +1,6 @@
 package team15.homelessproducing.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalTime;
 
 @Entity

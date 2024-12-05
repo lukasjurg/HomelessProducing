@@ -11,7 +11,7 @@ public class HomelessAppUI extends Application {
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainView.fxml"));
         primaryStage.setScene(new Scene(loader.load()));
-        primaryStage.setTitle("Homeless Producing System");
+        primaryStage.setTitle("Homeless Application");
         primaryStage.show();
     }
 
