@@ -15,31 +15,37 @@ public class HomelessServiceController {
     @Autowired
     private HomelessServiceService homelessServiceService;
 
+    // Get all homeless services
     @GetMapping
     public List<HomelessService> getAllHomelessServices() {
         return homelessServiceService.getAllHomelessServices();
     }
 
+    // Get a single homeless service by ID
     @GetMapping("/{id}")
     public HomelessService getHomelessServiceById(@PathVariable Long id) {
         return homelessServiceService.getHomelessServiceById(id);
     }
 
+    // Create a new homeless service
     @PostMapping
     public HomelessService createHomelessService(@RequestBody HomelessService homelessService) {
         return homelessServiceService.createHomelessService(homelessService);
     }
 
+    // Update an existing homeless service
     @PutMapping("/{id}")
     public HomelessService updateHomelessService(@PathVariable Long id, @RequestBody HomelessService homelessServiceDetails) {
         return homelessServiceService.updateHomelessService(id, homelessServiceDetails);
     }
 
+    // Delete a homeless service by ID
     @DeleteMapping("/{id}")
     public void deleteHomelessService(@PathVariable Long id) {
         homelessServiceService.deleteHomelessService(id);
     }
 
+    // Filter services by a specific time range
     @GetMapping("/filter-by-time")
     public List<HomelessService> filterByTimeRange(
             @RequestParam("start") String start,
@@ -49,16 +55,19 @@ public class HomelessServiceController {
         return homelessServiceService.filterByTimeRange(startTime, endTime);
     }
 
+    // Filter services by city name
     @GetMapping("/by-city")
     public List<HomelessService> filterByCityName(@RequestParam String cityName) {
         return homelessServiceService.filterByCityName(cityName);
     }
 
+    // Filter services by category name
     @GetMapping("/by-category")
     public List<HomelessService> filterByCategoryName(@RequestParam String categoryName) {
         return homelessServiceService.filterByCategoryName(categoryName);
     }
 
+    // Filter services by city name, category name, and time range
     @GetMapping("/filter")
     public List<HomelessService> filterByCityCategoryAndTime(
             @RequestParam(required = false) String cityName,
@@ -71,5 +80,4 @@ public class HomelessServiceController {
 
         return homelessServiceService.filterByCityCategoryAndTime(cityName, categoryName, parsedStartTime, parsedEndTime);
     }
-
 }

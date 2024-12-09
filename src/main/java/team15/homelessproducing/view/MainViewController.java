@@ -1,6 +1,8 @@
 package team15.homelessproducing.view;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputDialog;
 
@@ -8,6 +10,8 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Optional;
+
+import javafx.stage.Stage;
 import org.json.JSONObject;
 
 
@@ -35,9 +39,9 @@ public class MainViewController {
                     String userRole = authenticateUser(username.get(), password.get());
 
                     if ("User".equalsIgnoreCase(userRole)) {
-                        showAlert("Login Success", "User logged in!");
+                        openUserMenu();
                     } else if ("Admin".equalsIgnoreCase(userRole)) {
-                        showAlert("Login Success", "Admin logged in!");
+                        openAdminMenu();
                     } else {
                         showAlert("Login Failed", "Invalid credentials or role!");
                     }
@@ -49,6 +53,31 @@ public class MainViewController {
         }
     }
 
+    private void openUserMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/UserMenu.fxml"));
+            Stage stage = new Stage();
+            stage.setScene(new Scene(loader.load()));
+            stage.setTitle("User Menu");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open User Menu.");
+        }
+    }
+
+    private void openAdminMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminMenu.fxml"));
+            Stage stage = new Stage();
+            stage.setScene(new Scene(loader.load()));
+            stage.setTitle("Admin Menu");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open Admin Menu.");
+        }
+    }
 
     @FXML
     private void handleRegister() {
