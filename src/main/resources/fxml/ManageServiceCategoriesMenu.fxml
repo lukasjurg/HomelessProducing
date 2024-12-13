@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="team15.homelessproducing.view.ManageServiceCategoriesMenuController"
+      alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+    <Button text="Get All Service Categories" onAction="#handleGetAllServiceCategories"/>
+    <Button text="Get Service Category By ID" onAction="#handleGetServiceCategoryById"/>
+    <Button text="Create a New Service Category" onAction="#handleCreateServiceCategory"/>
+    <Button text="Delete Service Category By ID" onAction="#handleDeleteServiceCategoryById"/>
+    <Button text="Back to Admin Menu" onAction="#handleBack"/>
+</VBox>

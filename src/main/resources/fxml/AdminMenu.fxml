@@ -8,5 +8,7 @@
 
     <Button text="Manage Users" onAction="#handleManageUsers" />
     <Button text="Manage Services" onAction="#handleManageServices" />
+    <Button text="Manage Cities" onAction="#handleManageCities"/>
+    <Button text="Manage Service Categories" onAction="#handleManageServiceCategories"/>
     <Button text="Logout" onAction="#handleLogout" />
 </VBox>

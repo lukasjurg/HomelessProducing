@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="team15.homelessproducing.view.ManageServicesMenuController"
+      alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+    <Button text="Get All Services" onAction="#handleGetAllServices"/>
+    <Button text="Get Service By ID" onAction="#handleGetServiceById"/>
+    <Button text="Update Service By ID" onAction="#handleUpdateServiceById"/>
+    <Button text="Create a New Service" onAction="#handleCreateService"/>
+    <Button text="Back to Admin Menu" onAction="#handleBack"/>
+</VBox>

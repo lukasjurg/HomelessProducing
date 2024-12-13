@@ -1,9 +1,15 @@
 package team15.homelessproducing.view;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputDialog;
+import javafx.stage.Stage;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -15,8 +21,27 @@ public class ManageUsersMenuController {
 
     @FXML
     private void handleGetAllUsers() {
-        showAlert("Info", "Get All Users clicked!");
-        // Implement backend logic to fetch all users
+        try {
+            URL url = new URL(BASE_API_URL);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line).append("\n");
+                    }
+                    showAlert("All Users", response.toString());
+                }
+            } else {
+                showAlert("Error", "Failed to fetch users. Response code: " + responseCode);
+            }
+        } catch (Exception e) {
+            showAlert("Error", "An error occurred: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -35,7 +60,14 @@ public class ManageUsersMenuController {
 
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
-                    showAlert("Success", "User fetched successfully!");
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                        StringBuilder response = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            response.append(line);
+                        }
+                        showAlert("User Details", response.toString());
+                    }
                 } else {
                     showAlert("Error", "Failed to fetch user. Response code: " + responseCode);
                 }
@@ -59,28 +91,24 @@ public class ManageUsersMenuController {
             usernameDialog.setTitle("Update User");
             usernameDialog.setHeaderText("Enter the new username:");
             usernameDialog.setContentText("Username:");
-
             Optional<String> newUsername = usernameDialog.showAndWait();
 
             TextInputDialog emailDialog = new TextInputDialog();
             emailDialog.setTitle("Update User");
             emailDialog.setHeaderText("Enter the new email:");
             emailDialog.setContentText("Email:");
-
             Optional<String> newEmail = emailDialog.showAndWait();
 
             TextInputDialog passwordDialog = new TextInputDialog();
             passwordDialog.setTitle("Update User");
             passwordDialog.setHeaderText("Enter the new password:");
             passwordDialog.setContentText("Password:");
-
             Optional<String> newPassword = passwordDialog.showAndWait();
 
             TextInputDialog roleDialog = new TextInputDialog();
             roleDialog.setTitle("Update User");
             roleDialog.setHeaderText("Enter the new role ID:");
             roleDialog.setContentText("Role ID (1 for User, 2 for Admin):");
-
             Optional<String> roleId = roleDialog.showAndWait();
 
             if (newUsername.isPresent() && newEmail.isPresent() && newPassword.isPresent() && roleId.isPresent()) {
@@ -111,6 +139,20 @@ public class ManageUsersMenuController {
                     showAlert("Error", "An error occurred: " + e.getMessage());
                 }
             }
+        }
+    }
+
+    @FXML
+    private void handleBackToAdminMenu(javafx.event.ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminMenu.fxml"));
+            Scene adminMenuScene = new Scene(loader.load());
+            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            window.setScene(adminMenuScene);
+            window.setTitle("Admin Menu");
+            window.show();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

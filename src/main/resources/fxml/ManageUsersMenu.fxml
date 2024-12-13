@@ -7,4 +7,5 @@
     <Button text="Get All Users" onAction="#handleGetAllUsers"/>
     <Button text="Get User By ID" onAction="#handleGetUserById"/>
     <Button text="Update User By ID" onAction="#handleUpdateUserById"/>
+    <Button text="Back to Admin Menu" onAction="#handleBackToAdminMenu"/>
 </VBox>

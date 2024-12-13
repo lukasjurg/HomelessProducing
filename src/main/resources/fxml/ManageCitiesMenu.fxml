@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="team15.homelessproducing.view.ManageCitiesMenuController"
+      alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+    <Button text="Get All Cities" onAction="#handleGetAllCities"/>
+    <Button text="Get City By ID" onAction="#handleGetCityById"/>
+    <Button text="Create a New City" onAction="#handleCreateCity"/>
+    <Button text="Delete City By ID" onAction="#handleDeleteCityById"/>
+    <Button text="Back to Admin Menu" onAction="#handleBack"/>
+</VBox>
