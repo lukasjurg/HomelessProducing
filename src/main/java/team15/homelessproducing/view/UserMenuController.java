@@ -26,6 +26,12 @@ public class UserMenuController {
     }
 
     @FXML
+    private void handleViewProfile() {
+        // Placeholder logic for viewing profile
+        showAlert("Profile", "View Profile functionality is under development.");
+    }
+
+    @FXML
     private void handleLogout() {
         showAlert("Info", "User logged out!");
         // Implement navigation back to the login screen

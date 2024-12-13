@@ -170,7 +170,7 @@ public class AdminMenuController {
 
     @FXML
     private void handleManageServices() {
-        List<String> options = Arrays.asList("Get All Services", "Get Service By ID", "Update Service By ID");
+        List<String> options = Arrays.asList("Get All Services", "Get Service By ID", "Update Service By ID", "Create a New Service");
         ChoiceDialog<String> dialog = new ChoiceDialog<>("Get All Services", options);
         dialog.setTitle("Manage Services");
         dialog.setHeaderText("Select an action to perform:");
@@ -187,6 +187,9 @@ public class AdminMenuController {
                     break;
                 case "Update Service By ID":
                     handleUpdateServiceById();
+                    break;
+                case "Create a New Service":
+                    handleCreateService();
                     break;
                 default:
                     showAlert("Error", "Invalid action selected!");
@@ -334,6 +337,83 @@ public class AdminMenuController {
             }
         }
     }
+
+    private void handleCreateService() {
+        TextInputDialog nameDialog = new TextInputDialog();
+        nameDialog.setTitle("Create Service");
+        nameDialog.setHeaderText("Enter service name:");
+        nameDialog.setContentText("Name:");
+        Optional<String> name = nameDialog.showAndWait();
+
+        TextInputDialog addressDialog = new TextInputDialog();
+        addressDialog.setTitle("Create Service");
+        addressDialog.setHeaderText("Enter service address:");
+        addressDialog.setContentText("Address:");
+        Optional<String> address = addressDialog.showAndWait();
+
+        TextInputDialog contactDialog = new TextInputDialog();
+        contactDialog.setTitle("Create Service");
+        contactDialog.setHeaderText("Enter contact number:");
+        contactDialog.setContentText("Contact Number:");
+        Optional<String> contactNumber = contactDialog.showAndWait();
+
+        TextInputDialog startTimeDialog = new TextInputDialog();
+        startTimeDialog.setTitle("Create Service");
+        startTimeDialog.setHeaderText("Enter start time (HH:mm:ss):");
+        startTimeDialog.setContentText("Start Time:");
+        Optional<String> startTime = startTimeDialog.showAndWait();
+
+        TextInputDialog endTimeDialog = new TextInputDialog();
+        endTimeDialog.setTitle("Create Service");
+        endTimeDialog.setHeaderText("Enter end time (HH:mm:ss):");
+        endTimeDialog.setContentText("End Time:");
+        Optional<String> endTime = endTimeDialog.showAndWait();
+
+        TextInputDialog categoryDialog = new TextInputDialog();
+        categoryDialog.setTitle("Create Service");
+        categoryDialog.setHeaderText("Enter category ID:");
+        categoryDialog.setContentText("Category ID:");
+        Optional<String> categoryId = categoryDialog.showAndWait();
+
+        TextInputDialog cityDialog = new TextInputDialog();
+        cityDialog.setTitle("Create Service");
+        cityDialog.setHeaderText("Enter city ID:");
+        cityDialog.setContentText("City ID:");
+        Optional<String> cityId = cityDialog.showAndWait();
+
+        if (name.isPresent() && address.isPresent() && contactNumber.isPresent() &&
+                startTime.isPresent() && endTime.isPresent() &&
+                categoryId.isPresent() && cityId.isPresent()) {
+            try {
+                // Construct the JSON payload
+                String payload = String.format(
+                        "{\"name\":\"%s\", \"address\":\"%s\", \"contactNumber\":\"%s\", \"startTime\":\"%s\", \"endTime\":\"%s\", \"category\":{\"categoryId\":%s}, \"city\":{\"cityId\":%s}}",
+                        name.get(), address.get(), contactNumber.get(), startTime.get(), endTime.get(), categoryId.get(), cityId.get()
+                );
+
+                URL url = new URL(BASE_API_URL + "/homeless-services");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+
+                try (OutputStream os = connection.getOutputStream()) {
+                    os.write(payload.getBytes());
+                    os.flush();
+                }
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    showAlert("Success", "Service created successfully!");
+                } else {
+                    showAlert("Error", "Failed to create service. Response code: " + responseCode);
+                }
+            } catch (Exception e) {
+                showAlert("Error", "An error occurred: " + e.getMessage());
+            }
+        }
+    }
+
 
     @FXML
     private void handleLogout() {
