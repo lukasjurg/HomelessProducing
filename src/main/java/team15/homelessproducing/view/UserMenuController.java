@@ -2,39 +2,93 @@ package team15.homelessproducing.view;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-
-import java.io.IOException;
+import javafx.event.ActionEvent;
 
 public class UserMenuController {
 
     @FXML
-    private void handleManageUsers() {
+    private ImageView logoImageView;
+
+    @FXML
+    private ImageView photoImageView;
+
+    @FXML
+    private void handleCommunity(ActionEvent event) {
+        loadPage("/fxml/CommunityView.fxml", "Community Page");
+    }
+
+    @FXML
+    private void handleServices(ActionEvent event) {
+        loadPage("/fxml/ServicesView.fxml", "Services Page");
+    }
+
+    private void loadPage(String fxmlPath, String title) {
         try {
-            // Load the Manage Users Menu FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ManageUsersMenu.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+
             Stage stage = new Stage();
-            stage.setScene(new Scene(loader.load()));
-            stage.setTitle("Manage Users");
+            stage.setTitle(title);
+            stage.setScene(new Scene(root, 800, 600));
             stage.show();
-        } catch (IOException e) {
-            showAlert("Error", "Unable to open Manage Users Menu.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Failed to load: " + fxmlPath);
+        }
+    }
+
+    @FXML
+    private void handleCommunity() {
+        showAlert("Info", "Navigating to Community Section.");
+        // Future implementation: Load community-related UI
+    }
+
+    @FXML
+    private void handleServices() {
+        showAlert("Info", "Navigating to Services Section.");
+        // Future implementation: Load services-related UI
+    }
+
+    @FXML
+    private void handleProfile() {
+        showAlert("Info", "Navigating to Profile.");
+        // Future implementation: Load profile-related UI
+    }
+
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        try {
+            // Load the main menu or login screen after logout
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainView.fxml"));
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(loader.load()));
+            stage.setTitle("Homeless Producing - Main Menu");
+            stage.show();
+        } catch (Exception e) {
+            showAlert("Error", "Failed to log out. Please try again.");
             e.printStackTrace();
         }
     }
 
     @FXML
-    private void handleViewProfile() {
-        // Placeholder logic for viewing profile
-        showAlert("Profile", "View Profile functionality is under development.");
-    }
+    public void initialize() {
+        // Load logo image
+        try {
+            Image logoImage = new Image(getClass().getResourceAsStream("/fxml/images/HA_logo.png"));
+            logoImageView.setImage(logoImage);
 
-    @FXML
-    private void handleLogout() {
-        showAlert("Info", "User logged out!");
-        // Implement navigation back to the login screen
+            // Placeholder photo image (optional)
+            Image photoImage = new Image(getClass().getResourceAsStream("/fxml/images/placeholder.png"));
+            photoImageView.setImage(photoImage);
+        } catch (Exception e) {
+            System.err.println("Failed to load images: " + e.getMessage());
+        }
     }
 
     private void showAlert(String title, String message) {

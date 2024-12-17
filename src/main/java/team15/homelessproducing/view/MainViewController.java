@@ -5,19 +5,38 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Optional;
 
-import javafx.stage.Stage;
-import org.json.JSONObject;
-
-
 public class MainViewController {
 
     private static final String BASE_API_URL = "http://localhost:8080/api";
+
+    @FXML
+    private ImageView logoImageView; // Add this to link with ImageView in FXML
+
+    @FXML
+    public void initialize() {
+        try {
+            InputStream imageStream = getClass().getResourceAsStream("/fxml/images/HA_logo.png");
+            if (imageStream != null) {
+                Image logoImage = new Image(imageStream);
+                logoImageView.setImage(logoImage);
+            } else {
+                System.err.println("Image file not found: /fxml/images/HA_logo.png");
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading image: " + e.getMessage());
+        }
+    }
+
 
     @FXML
     private void handleLogin() {
@@ -53,32 +72,6 @@ public class MainViewController {
         }
     }
 
-    private void openUserMenu() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/UserMenu.fxml"));
-            Stage stage = new Stage();
-            stage.setScene(new Scene(loader.load()));
-            stage.setTitle("User Menu");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to open User Menu.");
-        }
-    }
-
-    private void openAdminMenu() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminMenu.fxml"));
-            Stage stage = new Stage();
-            stage.setScene(new Scene(loader.load()));
-            stage.setTitle("Admin Menu");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to open Admin Menu.");
-        }
-    }
-
     @FXML
     private void handleRegister() {
         TextInputDialog usernameDialog = new TextInputDialog();
@@ -111,6 +104,31 @@ public class MainViewController {
         }
     }
 
+    private void openUserMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/UserMenu.fxml"));
+            Stage stage = new Stage();
+            stage.setScene(new Scene(loader.load()));
+            stage.setTitle("User Menu");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open User Menu.");
+        }
+    }
+
+    private void openAdminMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminMenu.fxml"));
+            Stage stage = new Stage();
+            stage.setScene(new Scene(loader.load()));
+            stage.setTitle("Admin Menu");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open Admin Menu.");
+        }
+    }
 
     private String authenticateUser(String username, String password) throws IOException {
         URL url = new URL(BASE_API_URL + "/users/login");
@@ -186,18 +204,6 @@ public class MainViewController {
             showAlert("Registration Failed", "Server error occurred!");
         }
         return false; // Registration failed
-    }
-
-
-
-
-    private String parseUserRole(String jsonResponse) {
-        if (jsonResponse.contains("\"role\":\"User\"")) {
-            return "User";
-        } else if (jsonResponse.contains("\"role\":\"Admin\"")) {
-            return "Admin";
-        }
-        return null;
     }
 
     private void showAlert(String title, String content) {

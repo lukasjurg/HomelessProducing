@@ -3,7 +3,8 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="team15.homelessproducing.view.ManageServicesMenuController"
-      alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+      alignment="CENTER" spacing="10" prefWidth="800" prefHeight="600"
+      stylesheets="@css/styles.css" style="-fx-padding: 20;">
     <Button text="Get All Services" onAction="#handleGetAllServices"/>
     <Button text="Get Service By ID" onAction="#handleGetServiceById"/>
     <Button text="Update Service By ID" onAction="#handleUpdateServiceById"/>

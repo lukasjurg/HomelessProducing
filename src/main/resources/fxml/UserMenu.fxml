@@ -1,9 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="team15.homelessproducing.view.UserMenuController"
-      alignment="CENTER" spacing="10" style="-fx-padding: 20;">
-    <Button text="View Profile" onAction="#handleViewProfile"/>
-    <Button text="Logout" onAction="#handleLogout"/>
+      spacing="20" alignment="CENTER" prefWidth="800" prefHeight="600"
+      stylesheets="/fxml/css/styles.css" style="-fx-padding: 20;">
+
+    <!-- Header Section -->
+    <HBox alignment="CENTER" spacing="20" style="-fx-background-color: #e0e0e0; -fx-padding: 10;">
+        <ImageView fx:id="logoImageView" fitWidth="100" fitHeight="100" preserveRatio="true" />
+        <Label text="Welcome, [Username]!" styleClass="header-label" />
+        <VBox spacing="10">
+            <Button text="My Profile" onAction="#handleProfile" styleClass="header-button" />
+            <Button text="Log Out" onAction="#handleLogout" styleClass="header-button" />
+        </VBox>
+    </HBox>
+
+    <!-- Navigation Section -->
+    <HBox alignment="CENTER" spacing="20">
+        <Button text="Community" onAction="#handleCommunity" styleClass="navigation-button" />
+        <Button text="Services" onAction="#handleServices" styleClass="navigation-button" />
+    </HBox>
+
+    <!-- Placeholder for Photo Section -->
+    <Pane prefWidth="400" prefHeight="200" styleClass="photo-pane">
+        <ImageView fx:id="photoImageView" fitWidth="400" fitHeight="200" preserveRatio="true" />
+    </Pane>
+
 </VBox>
