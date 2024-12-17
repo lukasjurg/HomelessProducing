@@ -9,6 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import org.json.JSONObject;
+import team15.homelessproducing.util.UserSession;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -153,18 +154,20 @@ public class MainViewController {
                 }
                 System.out.println("Login Response: " + response);
 
-                String responseString = response.toString().trim();
-                if (responseString.startsWith("{")) {
-                    JSONObject json = new JSONObject(responseString);
-                    return json.optString("role", null);
+                JSONObject json = new JSONObject(response.toString());
+                Long userId = json.optLong("userId"); // Retrieve userId
+                String role = json.optString("role");
+
+                // Save the userId to the UserSession
+                if (userId > 0) {
+                    UserSession.getInstance().setCurrentUserId(userId);
+                    System.out.println("Received User ID: " + userId);
                 } else {
-                    if (responseString.equalsIgnoreCase("Login successful!")) {
-                        return "User";
-                    }
+                    System.err.println("Invalid User ID received.");
                 }
+
+                return role;
             }
-        } else {
-            System.out.println("Error Response Code: " + responseCode);
         }
         return null;
     }

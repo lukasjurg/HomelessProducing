@@ -9,6 +9,9 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import team15.homelessproducing.model.Feedback;
+import team15.homelessproducing.util.JsonUtils;
+import team15.homelessproducing.util.UserSession;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -35,6 +38,8 @@ public class ServicesViewController {
     @FXML
     private CheckBox openedNowCheckBox;
 
+    private List<Feedback> feedbackList;
+
     @FXML
     private VBox servicesContainer;
 
@@ -47,6 +52,7 @@ public class ServicesViewController {
         fetchServices();
         fetchCities();
         fetchServiceCategories();
+        fetchFeedback();
     }
 
     // Fetch all services
@@ -56,10 +62,14 @@ public class ServicesViewController {
 
         httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
-                .thenAccept(this::updateServiceContainer)
-                .exceptionally(e -> {
-                    System.err.println("Error fetching services: " + e.getMessage());
-                    return null;
+                .thenAccept(response -> {
+                    try {
+                        allServices = JsonUtils.getObjectMapper().readValue(response, new TypeReference<List<HomelessService>>() {});
+                        displayServices(allServices);
+                    } catch (Exception e) {
+                        System.err.println("Error processing services JSON response: " + e.getMessage());
+                        e.printStackTrace();
+                    }
                 });
     }
 
@@ -80,9 +90,19 @@ public class ServicesViewController {
     private void displayServices(List<HomelessService> services) {
         Platform.runLater(() -> {
             servicesContainer.getChildren().clear();
+
             for (HomelessService service : services) {
+                // Calculate the average rating for this service
+                double averageRating = calculateAverageRating(service.serviceId);
+
                 VBox serviceBox = new VBox(5);
                 serviceBox.setStyle("-fx-border-color: #ddd; -fx-border-radius: 5; -fx-padding: 10; -fx-background-color: #f9f9f9;");
+
+                // Create the Give Feedback button
+                Button feedbackButton = new Button("Give Feedback");
+                feedbackButton.setOnAction(event -> openFeedbackDialog(service.serviceId));
+
+                // Add all service details and the button
                 serviceBox.getChildren().addAll(
                         new Label("Service ID: " + service.serviceId),
                         new Label("Name: " + service.name),
@@ -91,8 +111,11 @@ public class ServicesViewController {
                         new Label("Start Time: " + service.startTime),
                         new Label("End Time: " + service.endTime),
                         new Label("City: " + (service.city != null ? service.city.cityName : "N/A")),
-                        new Label("Category: " + (service.category != null ? service.category.categoryName : "N/A"))
+                        new Label("Category: " + (service.category != null ? service.category.categoryName : "N/A")),
+                        new Label("Average Rating: " + (averageRating > 0 ? String.format("%.2f", averageRating) : "No Ratings")),
+                        feedbackButton
                 );
+
                 servicesContainer.getChildren().add(serviceBox);
             }
         });
@@ -192,6 +215,140 @@ public class ServicesViewController {
         displayServices(allServices);
     }
 
+    private void fetchFeedback() {
+        String feedbackApiUrl = "http://localhost:8080/api/feedbacks";
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(feedbackApiUrl)).build();
+
+        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenAccept(response -> {
+                    try {
+                        feedbackList = JsonUtils.getObjectMapper().readValue(response, new TypeReference<List<Feedback>>() {});
+                        System.out.println("Feedback fetched: " + feedbackList.size());
+                        displayServices(allServices);
+                    } catch (Exception e) {
+                        System.err.println("Error processing feedback JSON response: " + e.getMessage());
+                    }
+                })
+                .exceptionally(e -> {
+                    System.err.println("Error fetching feedback: " + e.getMessage());
+                    return null;
+                });
+    }
+
+    private double calculateAverageRating(Long serviceId) {
+        if (feedbackList == null || feedbackList.isEmpty()) {
+            return 0.0;
+        }
+
+        // Filter feedback for the given serviceId and calculate the average
+        List<Integer> ratings = feedbackList.stream()
+                .filter(f -> f.getService() != null && f.getService().getServiceId().equals(serviceId))
+                .map(Feedback::getRating)
+                .collect(Collectors.toList());
+
+        if (ratings.isEmpty()) {
+            return 0.0;
+        }
+
+        return ratings.stream().mapToInt(Integer::intValue).average().orElse(0.0);
+    }
+
+    private void openFeedbackDialog(Long serviceId) {
+        // Create the dialog
+        Dialog<Integer> dialog = new Dialog<>();
+        dialog.setTitle("Give Feedback");
+        dialog.setHeaderText("Submit your feedback for Service ID: " + serviceId);
+
+        // Input for rating
+        Label ratingLabel = new Label("Rating (1-5):");
+        TextField ratingField = new TextField();
+
+        // Layout for dialog content
+        VBox content = new VBox(10);
+        content.getChildren().addAll(ratingLabel, ratingField);
+        dialog.getDialogPane().setContent(content);
+
+        // Add OK and Cancel buttons
+        ButtonType submitButton = new ButtonType("Submit", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(submitButton, ButtonType.CANCEL);
+
+        // Process the result
+        dialog.setResultConverter(button -> {
+            if (button == submitButton) {
+                try {
+                    return Integer.parseInt(ratingField.getText().trim());
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid rating input. Please enter a number between 1 and 5.");
+                }
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(rating -> {
+            if (rating >= 1 && rating <= 5) {
+                sendFeedback(serviceId, rating);
+            } else {
+                System.err.println("Rating must be between 1 and 5.");
+            }
+        });
+    }
+
+    private void sendFeedback(Long serviceId, int rating) {
+        Long userId = getCurrentUserId();
+
+        if (userId == null) {
+            return; // Exit method if user is not logged in
+        }
+
+        // Construct the feedback JSON
+        String feedbackJson = String.format(
+                "{\"rating\": %d, \"user\": {\"userId\": %d}, \"service\": {\"serviceId\": %d}}",
+                rating, userId, serviceId
+        );
+        System.out.println("Feedback JSON: " + feedbackJson); // Debugging log
+
+        String apiUrl = "http://localhost:8080/api/feedbacks";
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(apiUrl))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(feedbackJson))
+                .build();
+
+        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::statusCode)
+                .thenAccept(statusCode -> {
+                    if (statusCode == 201 || statusCode == 200) {
+                        showAlert("Feedback Submitted", "Thank you for your feedback!");
+                        fetchFeedback(); // Refresh feedback data
+                    } else {
+                        showAlert("Submission Failed", "Failed to submit feedback. Please try again.");
+                    }
+                })
+                .exceptionally(e -> {
+                    System.err.println("Error submitting feedback: " + e.getMessage());
+                    showAlert("Error", "An error occurred while submitting feedback.");
+                    return null;
+                });
+    }
+
+    private Long getCurrentUserId() {
+        Long userId = UserSession.getInstance().getCurrentUserId();
+        if (userId == null) {
+            showAlert("Error", "You must be logged in to give feedback. Please log in and try again.");
+            return null;
+        }
+        return userId;
+    }
+
+    private void showAlert(String title, String content) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle(title);
+            alert.setContentText(content);
+            alert.showAndWait();
+        });
+    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class HomelessService {

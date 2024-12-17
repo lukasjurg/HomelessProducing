@@ -3,7 +3,11 @@ package team15.homelessproducing.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import team15.homelessproducing.model.Feedback;
+import team15.homelessproducing.model.HomelessService;
+import team15.homelessproducing.model.User;
 import team15.homelessproducing.repository.FeedbackRepository;
+import team15.homelessproducing.repository.HomelessServiceRepository;
+import team15.homelessproducing.repository.UserRepository;
 
 import java.util.List;
 
@@ -13,6 +17,12 @@ public class FeedbackController {
 
     @Autowired
     private FeedbackRepository feedbackRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private HomelessServiceRepository serviceRepository;
 
     @GetMapping
     public List<Feedback> getAllFeedbacks() {
@@ -26,8 +36,22 @@ public class FeedbackController {
 
     @PostMapping
     public Feedback createFeedback(@RequestBody Feedback feedback) {
+        // Fetch User entity
+        User user = userRepository.findById(feedback.getUser().getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + feedback.getUser().getUserId()));
+
+        // Fetch Service entity
+        HomelessService service = serviceRepository.findById(feedback.getService().getServiceId())
+                .orElseThrow(() -> new RuntimeException("Service not found with ID: " + feedback.getService().getServiceId()));
+
+        // Set fetched entities into Feedback object
+        feedback.setUser(user);
+        feedback.setService(service);
+
+        // Save Feedback entity
         return feedbackRepository.save(feedback);
     }
+
 
     @PutMapping("/{id}")
     public Feedback updateFeedback(@PathVariable Long id, @RequestBody Feedback feedbackDetails) {

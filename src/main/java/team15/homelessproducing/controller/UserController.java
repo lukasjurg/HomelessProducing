@@ -76,12 +76,15 @@ public class UserController {
     public Response loginUser(@RequestBody User user) {
         Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
         if (foundUser.isPresent() && foundUser.get().getPassword().equals(user.getPassword())) {
-            return new Response("Login successful!", foundUser.get().getRole().getRoleName());
+            Long userId = foundUser.get().getUserId();
+            String roleName = foundUser.get().getRole().getRoleName();
+
+            // Return a structured JSON response
+            return new Response("Login successful!", roleName, userId);
         } else {
-            return new Response("Invalid username or password!", null);
+            return new Response("Invalid username or password!", null, null);
         }
     }
-
 
     // Update user information (self-update)
     @PutMapping("/self-update/{id}")
