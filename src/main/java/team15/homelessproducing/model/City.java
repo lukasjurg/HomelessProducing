@@ -1,8 +1,10 @@
 package team15.homelessproducing.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class City {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

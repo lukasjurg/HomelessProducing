@@ -44,4 +44,12 @@ public class CityController {
     public void deleteCity(@PathVariable Long id) {
         cityRepository.deleteById(id);
     }
+
+    @GetMapping("/names")
+    public List<String> getAllCityNames() {
+        return cityRepository.findAll().stream()
+                .map(City::getCityName)
+                .toList(); // Returns only city names
+    }
+
 }
