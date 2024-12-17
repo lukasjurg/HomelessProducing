@@ -1,10 +1,15 @@
 package team15.homelessproducing.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import team15.homelessproducing.model.CommunityPost;
+import team15.homelessproducing.model.User;
 import team15.homelessproducing.repository.CommunityPostRepository;
+import team15.homelessproducing.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -14,34 +19,33 @@ public class CommunityPostController {
     @Autowired
     private CommunityPostRepository communityPostRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(CommunityPostController.class);
+
     @GetMapping
     public List<CommunityPost> getAllCommunityPosts() {
         return communityPostRepository.findAll();
     }
 
-    @GetMapping("/{id}")
-    public CommunityPost getCommunityPostById(@PathVariable Long id) {
-        return communityPostRepository.findById(id).orElseThrow(() -> new RuntimeException("CommunityPost not found"));
-    }
-
     @PostMapping
     public CommunityPost createCommunityPost(@RequestBody CommunityPost communityPost) {
-        return communityPostRepository.save(communityPost);
-    }
+        logger.info("Incoming CommunityPost: Title={}, Content={}, UserId={}",
+                communityPost.getPostTitle(),
+                communityPost.getPostContent(),
+                communityPost.getUser() != null ? communityPost.getUser().getUserId() : "null");
 
-    @PutMapping("/{id}")
-    public CommunityPost updateCommunityPost(@PathVariable Long id, @RequestBody CommunityPost communityPostDetails) {
-        CommunityPost communityPost = communityPostRepository.findById(id).orElseThrow(() -> new RuntimeException("CommunityPost not found"));
-        communityPost.setPostTitle(communityPostDetails.getPostTitle());
-        communityPost.setPostContent(communityPostDetails.getPostContent());
-        communityPost.setCreatedAt(communityPostDetails.getCreatedAt());
-        communityPost.setUpdatedAt(communityPostDetails.getUpdatedAt());
-        communityPost.setUser(communityPostDetails.getUser());
-        return communityPostRepository.save(communityPost);
-    }
+        if (communityPost.getUser() == null || communityPost.getUser().getUserId() == null) {
+            throw new RuntimeException("User ID is required to create a post.");
+        }
 
-    @DeleteMapping("/{id}")
-    public void deleteCommunityPost(@PathVariable Long id) {
-        communityPostRepository.deleteById(id);
+        User user = userRepository.findById(communityPost.getUser().getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + communityPost.getUser().getUserId()));
+
+        communityPost.setUser(user);
+        communityPost.setCreatedAt(LocalDateTime.now().toString());
+        communityPost.setUpdatedAt(LocalDateTime.now().toString());
+        return communityPostRepository.save(communityPost);
     }
 }

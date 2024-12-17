@@ -46,25 +46,21 @@ public class UserMenuController {
     @FXML
     private void handleCommunity() {
         showAlert("Info", "Navigating to Community Section.");
-        // Future implementation: Load community-related UI
     }
 
     @FXML
     private void handleServices() {
         showAlert("Info", "Navigating to Services Section.");
-        // Future implementation: Load services-related UI
     }
 
     @FXML
     private void handleProfile() {
         showAlert("Info", "Navigating to Profile.");
-        // Future implementation: Load profile-related UI
     }
 
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
-            // Load the main menu or login screen after logout
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainView.fxml"));
             Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(loader.load()));
@@ -78,12 +74,10 @@ public class UserMenuController {
 
     @FXML
     public void initialize() {
-        // Load logo image
         try {
             Image logoImage = new Image(getClass().getResourceAsStream("/fxml/images/HA_logo.png"));
             logoImageView.setImage(logoImage);
 
-            // Placeholder photo image (optional)
             Image photoImage = new Image(getClass().getResourceAsStream("/fxml/images/placeholder.png"));
             photoImageView.setImage(photoImage);
         } catch (Exception e) {

@@ -21,7 +21,7 @@ public class MainViewController {
     private static final String BASE_API_URL = "http://localhost:8080/api";
 
     @FXML
-    private ImageView logoImageView; // Add this to link with ImageView in FXML
+    private ImageView logoImageView;
 
     @FXML
     public void initialize() {
@@ -155,10 +155,9 @@ public class MainViewController {
                 System.out.println("Login Response: " + response);
 
                 JSONObject json = new JSONObject(response.toString());
-                Long userId = json.optLong("userId"); // Retrieve userId
+                Long userId = json.optLong("userId");
                 String role = json.optString("role");
 
-                // Save the userId to the UserSession
                 if (userId > 0) {
                     UserSession.getInstance().setCurrentUserId(userId);
                     System.out.println("Received User ID: " + userId);
@@ -206,7 +205,7 @@ public class MainViewController {
             System.out.println("Error Response Code: " + responseCode);
             showAlert("Registration Failed", "Server error occurred!");
         }
-        return false; // Registration failed
+        return false;
     }
 
     private void showAlert(String title, String content) {

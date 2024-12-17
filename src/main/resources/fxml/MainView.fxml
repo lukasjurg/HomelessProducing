@@ -7,14 +7,8 @@
 <VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="team15.homelessproducing.view.MainViewController"
       spacing="10" alignment="CENTER" prefWidth="800" prefHeight="600"
       stylesheets="@css/styles.css" style="-fx-padding: 20;">
-
-    <!-- Logo Section -->
     <ImageView fx:id="logoImageView" fitWidth="250" fitHeight="250" pickOnBounds="true" preserveRatio="true" />
-
-    <!-- Title Label -->
     <Label text="Welcome to Homeless Producing System" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-
-    <!-- Buttons -->
     <Button text="Login" onAction="#handleLogin" />
-    <Button text="Register" onAction="#handleRegister" /> <!-- Correct handler -->
+    <Button text="Register" onAction="#handleRegister" />
 </VBox>

@@ -21,13 +21,13 @@ public class CommunityPost {
     private String updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // Prevent circular references
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User user;
 
-    @JsonProperty("username") // Explicitly map "username" in the JSON response
+    @JsonProperty("username")
     public String getUsername() {
-        return user != null ? user.getUsername() : "Anonymous"; // Fetch username without changing User class
+        return user != null ? user.getUsername() : "Anonymous";
     }
 
     // Getters and Setters
@@ -47,6 +47,6 @@ public class CommunityPost {
     public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
 
     @JsonIgnore
-    public User getUser() { return user; } // Keep user serialization ignored for direct user reference
+    public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 }

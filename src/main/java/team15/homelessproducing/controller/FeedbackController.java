@@ -36,19 +36,15 @@ public class FeedbackController {
 
     @PostMapping
     public Feedback createFeedback(@RequestBody Feedback feedback) {
-        // Fetch User entity
         User user = userRepository.findById(feedback.getUser().getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + feedback.getUser().getUserId()));
 
-        // Fetch Service entity
         HomelessService service = serviceRepository.findById(feedback.getService().getServiceId())
                 .orElseThrow(() -> new RuntimeException("Service not found with ID: " + feedback.getService().getServiceId()));
 
-        // Set fetched entities into Feedback object
         feedback.setUser(user);
         feedback.setService(service);
 
-        // Save Feedback entity
         return feedbackRepository.save(feedback);
     }
 

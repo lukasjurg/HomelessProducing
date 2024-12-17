@@ -92,17 +92,17 @@ public class ServicesViewController {
             servicesContainer.getChildren().clear();
 
             for (HomelessService service : services) {
-                // Calculate the average rating for this service
                 double averageRating = calculateAverageRating(service.serviceId);
 
                 VBox serviceBox = new VBox(5);
                 serviceBox.setStyle("-fx-border-color: #ddd; -fx-border-radius: 5; -fx-padding: 10; -fx-background-color: #f9f9f9;");
 
-                // Create the Give Feedback button
                 Button feedbackButton = new Button("Give Feedback");
                 feedbackButton.setOnAction(event -> openFeedbackDialog(service.serviceId));
 
-                // Add all service details and the button
+                Button bookAppointmentButton = new Button("Book an Appointment");
+                bookAppointmentButton.setOnAction(event -> openAppointmentDialog(service.serviceId));
+
                 serviceBox.getChildren().addAll(
                         new Label("Service ID: " + service.serviceId),
                         new Label("Name: " + service.name),
@@ -113,7 +113,8 @@ public class ServicesViewController {
                         new Label("City: " + (service.city != null ? service.city.cityName : "N/A")),
                         new Label("Category: " + (service.category != null ? service.category.categoryName : "N/A")),
                         new Label("Average Rating: " + (averageRating > 0 ? String.format("%.2f", averageRating) : "No Ratings")),
-                        feedbackButton
+                        feedbackButton,
+                        bookAppointmentButton
                 );
 
                 servicesContainer.getChildren().add(serviceBox);
@@ -152,7 +153,6 @@ public class ServicesViewController {
                 });
     }
 
-    // Apply filters for city, category, and time range
     @FXML
     private void applyFilters() {
         String selectedCity = cityComboBox.getValue();
@@ -167,13 +167,11 @@ public class ServicesViewController {
         System.out.println("End Time Input: " + endTimeInput);
         System.out.println("Opened Now: " + isOpenedNow);
 
-        // Declare startTime and endTime as final
         final LocalTime startTime = (startTimeInput != null && !startTimeInput.trim().isEmpty())
                 ? LocalTime.parse(startTimeInput) : null;
         final LocalTime endTime = (endTimeInput != null && !endTimeInput.trim().isEmpty())
                 ? LocalTime.parse(endTimeInput) : null;
 
-        // Declare current time as final
         final LocalTime currentTime = LocalTime.now();
 
         List<HomelessService> filteredServices = allServices.stream()
@@ -186,14 +184,14 @@ public class ServicesViewController {
                         LocalTime serviceStartTime = LocalTime.parse(service.startTime);
                         return !serviceStartTime.isBefore(startTime);
                     }
-                    return true; // If no start time is specified
+                    return true;
                 })
                 .filter(service -> {
                     if (endTime != null) {
                         LocalTime serviceEndTime = LocalTime.parse(service.endTime);
                         return !serviceEndTime.isAfter(endTime);
                     }
-                    return true; // If no end time is specified
+                    return true;
                 })
                 .filter(service -> !isOpenedNow ||
                         (LocalTime.parse(service.startTime).isBefore(currentTime) &&
@@ -211,7 +209,7 @@ public class ServicesViewController {
         categoryComboBox.setValue(null);
         startTimeField.clear();
         endTimeField.clear();
-        openedNowCheckBox.setSelected(false); // Reset "Opened Now" checkbox
+        openedNowCheckBox.setSelected(false);
         displayServices(allServices);
     }
 
@@ -241,7 +239,6 @@ public class ServicesViewController {
             return 0.0;
         }
 
-        // Filter feedback for the given serviceId and calculate the average
         List<Integer> ratings = feedbackList.stream()
                 .filter(f -> f.getService() != null && f.getService().getServiceId().equals(serviceId))
                 .map(Feedback::getRating)
@@ -255,25 +252,20 @@ public class ServicesViewController {
     }
 
     private void openFeedbackDialog(Long serviceId) {
-        // Create the dialog
         Dialog<Integer> dialog = new Dialog<>();
         dialog.setTitle("Give Feedback");
         dialog.setHeaderText("Submit your feedback for Service ID: " + serviceId);
 
-        // Input for rating
         Label ratingLabel = new Label("Rating (1-5):");
         TextField ratingField = new TextField();
 
-        // Layout for dialog content
         VBox content = new VBox(10);
         content.getChildren().addAll(ratingLabel, ratingField);
         dialog.getDialogPane().setContent(content);
 
-        // Add OK and Cancel buttons
         ButtonType submitButton = new ButtonType("Submit", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(submitButton, ButtonType.CANCEL);
 
-        // Process the result
         dialog.setResultConverter(button -> {
             if (button == submitButton) {
                 try {
@@ -298,15 +290,14 @@ public class ServicesViewController {
         Long userId = getCurrentUserId();
 
         if (userId == null) {
-            return; // Exit method if user is not logged in
+            return;
         }
 
-        // Construct the feedback JSON
         String feedbackJson = String.format(
                 "{\"rating\": %d, \"user\": {\"userId\": %d}, \"service\": {\"serviceId\": %d}}",
                 rating, userId, serviceId
         );
-        System.out.println("Feedback JSON: " + feedbackJson); // Debugging log
+        System.out.println("Feedback JSON: " + feedbackJson);
 
         String apiUrl = "http://localhost:8080/api/feedbacks";
         HttpRequest request = HttpRequest.newBuilder()
@@ -340,6 +331,71 @@ public class ServicesViewController {
         }
         return userId;
     }
+
+    private void openAppointmentDialog(Long serviceId) {
+        Long userId = getCurrentUserId();
+        if (userId == null) {
+            return;
+        }
+
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Book Appointment");
+        dialog.setHeaderText("Select a date for your appointment");
+
+        DatePicker datePicker = new DatePicker();
+        datePicker.setPromptText("Select Date");
+
+        VBox content = new VBox(10);
+        content.getChildren().addAll(new Label("Appointment Date:"), datePicker);
+        dialog.getDialogPane().setContent(content);
+
+        ButtonType bookButton = new ButtonType("Book", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(bookButton, ButtonType.CANCEL);
+
+        dialog.setResultConverter(button -> {
+            if (button == bookButton && datePicker.getValue() != null) {
+                return datePicker.getValue().toString();
+            } else if (button == bookButton) {
+                showAlert("Error", "Please select a valid date.");
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(bookingDate -> {
+            sendBookingRequest(serviceId, userId, bookingDate);
+        });
+    }
+
+    private void sendBookingRequest(Long serviceId, Long userId, String bookingDate) {
+        String bookingJson = String.format(
+                "{\"bookingDate\":\"%s\", \"status\":\"PENDING\", \"user\":{\"userId\":%d}, \"service\":{\"serviceId\":%d}}",
+                bookingDate, userId, serviceId
+        );
+        System.out.println("Booking JSON: " + bookingJson);
+
+        String apiUrl = "http://localhost:8080/api/appointments";
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(apiUrl))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(bookingJson))
+                .build();
+
+        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::statusCode)
+                .thenAccept(statusCode -> {
+                    if (statusCode == 201 || statusCode == 200) {
+                        showAlert("Appointment Booked", "Your appointment has been booked successfully!");
+                    } else {
+                        showAlert("Booking Failed", "Failed to book the appointment. Please try again.");
+                    }
+                })
+                .exceptionally(e -> {
+                    System.err.println("Error booking appointment: " + e.getMessage());
+                    showAlert("Error", "An error occurred while booking the appointment.");
+                    return null;
+                });
+    }
+
 
     private void showAlert(String title, String content) {
         Platform.runLater(() -> {

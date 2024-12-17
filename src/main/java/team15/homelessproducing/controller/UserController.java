@@ -21,26 +21,22 @@ public class UserController {
     @Autowired
     private UserRoleRepository userRoleRepository;
 
-    // Fetch all users
     @GetMapping
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    // Fetch a user by ID
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
     }
 
-    // Create a new user
     @PostMapping
     public User createUser(@RequestBody User user) {
         return userRepository.save(user);
     }
 
-    // Update an existing user
     @PutMapping("/{id}")
     public User updateUser(@PathVariable Long id, @RequestBody User user) {
         User existingUser = userRepository.findById(id)
@@ -52,13 +48,11 @@ public class UserController {
         return userRepository.save(existingUser);
     }
 
-    // Delete a user
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         userRepository.deleteById(id);
     }
 
-    // Register a new user
     @PostMapping("/register")
     public String registerUser(@RequestBody User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
@@ -71,7 +65,6 @@ public class UserController {
         return "User registered successfully!";
     }
 
-    // Login a user
     @PostMapping("/login")
     public Response loginUser(@RequestBody User user) {
         Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
@@ -79,14 +72,12 @@ public class UserController {
             Long userId = foundUser.get().getUserId();
             String roleName = foundUser.get().getRole().getRoleName();
 
-            // Return a structured JSON response
             return new Response("Login successful!", roleName, userId);
         } else {
             return new Response("Invalid username or password!", null, null);
         }
     }
 
-    // Update user information (self-update)
     @PutMapping("/self-update/{id}")
     public User selfUpdateUser(@PathVariable Long id, @RequestBody User userDetails) {
         User existingUser = userRepository.findById(id)

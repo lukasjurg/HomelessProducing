@@ -164,7 +164,6 @@ public class ManageServicesMenuController {
         Optional<String> serviceId = idDialog.showAndWait();
 
         if (serviceId.isPresent()) {
-            // Prompt for all fields
             TextInputDialog nameDialog = new TextInputDialog();
             nameDialog.setTitle("Update Service");
             nameDialog.setHeaderText("Enter the new service name:");

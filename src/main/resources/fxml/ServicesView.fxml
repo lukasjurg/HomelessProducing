@@ -10,11 +10,7 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="team15.homelessproducing.view.ServicesViewController"
       spacing="10" alignment="TOP_CENTER" style="-fx-padding: 20;" prefWidth="800" prefHeight="600">
-
-    <!-- Page Title -->
     <Label text="Services Section" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
-
-    <!-- Filter Controls -->
     <HBox spacing="10" alignment="CENTER">
         <ComboBox fx:id="cityComboBox" promptText="Filter by City" />
         <ComboBox fx:id="categoryComboBox" promptText="Filter by Category" />
@@ -24,8 +20,6 @@
         <Button text="Apply Filter" onAction="#applyFilters" />
         <Button text="Clear Filters" onAction="#clearFilters" />
     </HBox>
-
-    <!-- Scrollable Services List -->
     <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color:transparent;">
         <VBox fx:id="servicesContainer" spacing="10" style="-fx-padding: 10;" />
     </ScrollPane>
