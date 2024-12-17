@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml/1" alignment="CENTER" spacing="20" prefWidth="800" prefHeight="600">
-    <Label text="Community Section" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
-    <Label text="Here you can view community-related information." />
-</VBox>
+<ScrollPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="team15.homelessproducing.view.CommunityViewController"
+            fitToWidth="true" prefWidth="800" prefHeight="600">
+    <VBox fx:id="forumContainer" spacing="20" alignment="TOP_CENTER" style="-fx-padding: 20;">
+        <Label text="Community Forum" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+        <Label text="Here you can view community posts and discussions." style="-fx-font-size: 16px;" />
+    </VBox>
+</ScrollPane>
