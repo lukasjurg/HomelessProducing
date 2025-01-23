@@ -36,18 +36,15 @@ public class HomelessServiceService {
 
     @Transactional
     public HomelessService createHomelessService(HomelessService homelessService) {
-        // Fetch the category and city from the database
         ServiceCategory category = serviceCategoryRepository.findById(homelessService.getCategory().getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("ServiceCategory not found with id: " + homelessService.getCategory().getCategoryId()));
 
         City city = cityRepository.findById(homelessService.getCity().getCityId())
                 .orElseThrow(() -> new ResourceNotFoundException("City not found with id: " + homelessService.getCity().getCityId()));
 
-        // Set the managed entities
         homelessService.setCategory(category);
         homelessService.setCity(city);
 
-        // Save the homelessService
         return homelessServiceRepository.save(homelessService);
     }
 

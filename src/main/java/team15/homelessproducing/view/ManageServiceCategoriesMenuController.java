@@ -4,12 +4,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Optional;
@@ -31,9 +32,11 @@ public class ManageServiceCategoriesMenuController {
                     StringBuilder response = new StringBuilder();
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        response.append(line).append("\n");
+                        response.append(line);
                     }
-                    showAlert("All Service Categories", response.toString());
+
+                    String formattedResponse = formatJson(response.toString());
+                    displayFormattedText("All Service Categories", formattedResponse);
                 }
             } else {
                 showAlert("Error", "Failed to fetch service categories. Response code: " + responseCode);
@@ -65,7 +68,9 @@ public class ManageServiceCategoriesMenuController {
                         while ((line = reader.readLine()) != null) {
                             response.append(line);
                         }
-                        showAlert("Service Category Details", response.toString());
+
+                        String formattedResponse = formatJson(response.toString());
+                        displayFormattedText("Service Category Details", formattedResponse);
                     }
                 } else {
                     showAlert("Error", "Failed to fetch service category. Response code: " + responseCode);
@@ -158,6 +163,32 @@ public class ManageServiceCategoriesMenuController {
             showAlert("Error", "Failed to load Admin Menu.");
             e.printStackTrace();
         }
+    }
+
+    private String formatJson(String jsonString) {
+        try {
+            if (jsonString.trim().startsWith("[")) {
+                JSONArray jsonArray = new JSONArray(jsonString);
+                return jsonArray.toString(4);
+            } else {
+                JSONObject jsonObject = new JSONObject(jsonString);
+                return jsonObject.toString(4);
+            }
+        } catch (Exception e) {
+            return jsonString;
+        }
+    }
+
+    private void displayFormattedText(String title, String message) {
+        TextArea textArea = new TextArea(message);
+        textArea.setWrapText(true);
+        textArea.setEditable(false);
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.getDialogPane().setContent(textArea);
+        alert.showAndWait();
     }
 
     private void showAlert(String title, String message) {

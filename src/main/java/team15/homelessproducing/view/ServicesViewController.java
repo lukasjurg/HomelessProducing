@@ -55,7 +55,7 @@ public class ServicesViewController {
         fetchFeedback();
     }
 
-    // Fetch all services
+
     private void fetchServices() {
         String apiUrl = "http://localhost:8080/api/homeless-services";
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(apiUrl)).build();
@@ -71,20 +71,6 @@ public class ServicesViewController {
                         e.printStackTrace();
                     }
                 });
-    }
-
-    private void updateServiceContainer(String response) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            mapper.registerModule(new JavaTimeModule());
-
-            allServices = mapper.readValue(response, new TypeReference<List<HomelessService>>() {});
-            displayServices(allServices);
-        } catch (Exception e) {
-            System.err.println("Error processing services JSON response: " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 
     private void displayServices(List<HomelessService> services) {
@@ -311,7 +297,7 @@ public class ServicesViewController {
                 .thenAccept(statusCode -> {
                     if (statusCode == 201 || statusCode == 200) {
                         showAlert("Feedback Submitted", "Thank you for your feedback!");
-                        fetchFeedback(); // Refresh feedback data
+                        fetchFeedback();
                     } else {
                         showAlert("Submission Failed", "Failed to submit feedback. Please try again.");
                     }

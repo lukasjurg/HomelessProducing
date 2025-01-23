@@ -3,6 +3,7 @@ package team15.homelessproducing.util;
 public class UserSession {
     private static UserSession instance;
     private Long currentUserId;
+    private String currentUsername;
 
     private UserSession() {}
 
@@ -14,11 +15,22 @@ public class UserSession {
     }
 
     public Long getCurrentUserId() {
-        System.out.println("Current User ID: " + currentUserId); // Debugging log
+        System.out.println("Fetching current user ID: " + currentUserId);
         return currentUserId;
     }
 
     public void setCurrentUserId(Long currentUserId) {
+        System.out.println("Setting current user ID to: " + currentUserId);
         this.currentUserId = currentUserId;
+    }
+
+    public String getCurrentUsername() {
+        System.out.println("Fetching current username: " + currentUsername);
+        return currentUsername;
+    }
+
+    public void setCurrentUsername(String currentUsername) {
+        System.out.println("Setting current username to: " + currentUsername);
+        this.currentUsername = currentUsername;
     }
 }

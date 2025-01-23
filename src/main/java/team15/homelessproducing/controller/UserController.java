@@ -67,14 +67,20 @@ public class UserController {
 
     @PostMapping("/login")
     public Response loginUser(@RequestBody User user) {
+        System.out.println("Login attempt for username: " + user.getUsername());
         Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
         if (foundUser.isPresent() && foundUser.get().getPassword().equals(user.getPassword())) {
-            Long userId = foundUser.get().getUserId();
-            String roleName = foundUser.get().getRole().getRoleName();
-
-            return new Response("Login successful!", roleName, userId);
+            User loggedInUser = foundUser.get();
+            System.out.println("Login successful for username: " + loggedInUser.getUsername());
+            return new Response(
+                    "Login successful!",
+                    loggedInUser.getRole().getRoleName(),
+                    loggedInUser.getUserId(),
+                    loggedInUser.getUsername() // Include username here
+            );
         } else {
-            return new Response("Invalid username or password!", null, null);
+            System.out.println("Login failed for username: " + user.getUsername());
+            return new Response("Invalid username or password!", null, null, null);
         }
     }
 

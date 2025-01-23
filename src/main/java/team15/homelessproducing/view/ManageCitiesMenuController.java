@@ -4,12 +4,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Optional;
@@ -31,9 +32,11 @@ public class ManageCitiesMenuController {
                     StringBuilder response = new StringBuilder();
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        response.append(line).append("\n");
+                        response.append(line);
                     }
-                    showAlert("All Cities", response.toString());
+
+                    String formattedResponse = formatJson(response.toString());
+                    displayFormattedText("All Cities", formattedResponse);
                 }
             } else {
                 showAlert("Error", "Failed to fetch cities. Response code: " + responseCode);
@@ -65,7 +68,9 @@ public class ManageCitiesMenuController {
                         while ((line = reader.readLine()) != null) {
                             response.append(line);
                         }
-                        showAlert("City Details", response.toString());
+
+                        String formattedResponse = formatJson(response.toString());
+                        displayFormattedText("City Details", formattedResponse);
                     }
                 } else {
                     showAlert("Error", "Failed to fetch city. Response code: " + responseCode);
@@ -84,9 +89,9 @@ public class ManageCitiesMenuController {
         nameDialog.setContentText("City Name:");
 
         Optional<String> cityName = nameDialog.showAndWait();
-        if (cityName.isPresent()) {
+        cityName.ifPresent(name -> {
             try {
-                String payload = String.format("{\"cityName\":\"%s\"}", cityName.get());
+                String payload = String.format("{\"cityName\":\"%s\"}", name);
 
                 URL url = new URL(BASE_API_URL + "/cities");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -108,7 +113,7 @@ public class ManageCitiesMenuController {
             } catch (Exception e) {
                 showAlert("Error", "An error occurred: " + e.getMessage());
             }
-        }
+        });
     }
 
     @FXML
@@ -149,6 +154,32 @@ public class ManageCitiesMenuController {
             showAlert("Error", "Failed to go back to Admin Menu.");
             e.printStackTrace();
         }
+    }
+
+    private String formatJson(String jsonString) {
+        try {
+            if (jsonString.trim().startsWith("[")) {
+                JSONArray jsonArray = new JSONArray(jsonString);
+                return jsonArray.toString(4);
+            } else {
+                JSONObject jsonObject = new JSONObject(jsonString);
+                return jsonObject.toString(4);
+            }
+        } catch (Exception e) {
+            return jsonString;
+        }
+    }
+
+    private void displayFormattedText(String title, String message) {
+        TextArea textArea = new TextArea(message);
+        textArea.setWrapText(true);
+        textArea.setEditable(false);
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.getDialogPane().setContent(textArea);
+        alert.showAndWait();
     }
 
     private void showAlert(String title, String message) {

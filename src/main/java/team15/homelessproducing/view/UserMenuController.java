@@ -5,10 +5,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
+import team15.homelessproducing.util.UserSession;
 
 public class UserMenuController {
 
@@ -17,6 +19,9 @@ public class UserMenuController {
 
     @FXML
     private ImageView photoImageView;
+
+    @FXML
+    private Label welcomeLabel;
 
     @FXML
     private void handleCommunity(ActionEvent event) {
@@ -41,16 +46,6 @@ public class UserMenuController {
             e.printStackTrace();
             System.err.println("Failed to load: " + fxmlPath);
         }
-    }
-
-    @FXML
-    private void handleCommunity() {
-        showAlert("Info", "Navigating to Community Section.");
-    }
-
-    @FXML
-    private void handleServices() {
-        showAlert("Info", "Navigating to Services Section.");
     }
 
     @FXML
@@ -80,8 +75,14 @@ public class UserMenuController {
 
             Image photoImage = new Image(getClass().getResourceAsStream("/fxml/images/placeholder.png"));
             photoImageView.setImage(photoImage);
+
+            String username = UserSession.getInstance().getCurrentUsername();
+            System.out.println("Initializing UserMenuController with username: " + username);
+
+            welcomeLabel.setText("Welcome, " + (username != null && !username.isEmpty() ? username : "Guest") + "!");
         } catch (Exception e) {
-            System.err.println("Failed to load images: " + e.getMessage());
+            System.err.println("Failed to load resources or update UI: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

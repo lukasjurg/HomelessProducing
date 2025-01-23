@@ -8,7 +8,7 @@
       spacing="10" alignment="CENTER" prefWidth="800" prefHeight="600"
       stylesheets="@css/styles.css" style="-fx-padding: 20;">
     <ImageView fx:id="logoImageView" fitWidth="250" fitHeight="250" pickOnBounds="true" preserveRatio="true" />
-    <Label text="Welcome to Homeless Producing System" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+    <Label text="Welcome to Homeless Application" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
     <Button text="Login" onAction="#handleLogin" />
     <Button text="Register" onAction="#handleRegister" />
 </VBox>

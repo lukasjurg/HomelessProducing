@@ -66,7 +66,7 @@ public class MainViewController {
                         showAlert("Login Failed", "Invalid credentials or role!");
                     }
                 } catch (IOException e) {
-                    showAlert("Error", "Failed to connect to the server!");
+                    showAlert("Error", "Invalid credentials or role!");
                     e.printStackTrace();
                 }
             }
@@ -139,12 +139,16 @@ public class MainViewController {
         connection.setDoOutput(true);
 
         String payload = String.format("{\"username\":\"%s\", \"password\":\"%s\"}", username, password);
+        System.out.println("Sending login request with payload: " + payload);
+
         try (OutputStream os = connection.getOutputStream()) {
             os.write(payload.getBytes());
             os.flush();
         }
 
         int responseCode = connection.getResponseCode();
+        System.out.println("Login response code: " + responseCode);
+
         if (responseCode == HttpURLConnection.HTTP_OK) {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                 StringBuilder response = new StringBuilder();
@@ -152,23 +156,34 @@ public class MainViewController {
                 while ((line = br.readLine()) != null) {
                     response.append(line);
                 }
-                System.out.println("Login Response: " + response);
+
+                System.out.println("Login response: " + response.toString());
 
                 JSONObject json = new JSONObject(response.toString());
-                Long userId = json.optLong("userId");
-                String role = json.optString("role");
 
-                if (userId > 0) {
-                    UserSession.getInstance().setCurrentUserId(userId);
-                    System.out.println("Received User ID: " + userId);
-                } else {
-                    System.err.println("Invalid User ID received.");
+                Long userId = json.optLong("userId", -1L);
+                String role = json.optString("role", "");
+                String receivedUsername = json.optString("username", "Guest");
+
+                System.out.println("Extracted from login response:");
+                System.out.println(" - UserId: " + userId);
+                System.out.println(" - Role: " + role);
+                System.out.println(" - Username: " + receivedUsername);
+
+                if (userId == -1L || receivedUsername.equals("Guest")) {
+                    System.err.println("Login response missing critical fields: userId or username.");
+                    throw new IOException("Login response is incomplete or invalid.");
                 }
+
+                UserSession.getInstance().setCurrentUserId(userId);
+                UserSession.getInstance().setCurrentUsername(receivedUsername);
 
                 return role;
             }
+        } else {
+            System.err.println("Failed to authenticate. Response code: " + responseCode);
+            throw new IOException("Failed to authenticate: " + responseCode);
         }
-        return null;
     }
 
     private boolean registerUser(String username, String password) throws IOException {
